@@ -2,11 +2,13 @@
   <head>
     <title>WebSerial Demo</title>
     <script src="serial.js"></script>
-    <script src="midi.js"></script>
+    <script src="components/MIDIComponent/MIDIComponent.js"></script>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <button id="connectButton">Connect</button>
     <button id="helloButton">Say Hello</button>
     <div id="serialReadout">0</div>
+    <custom-midi></custom-midi>
   </body>
 </html>
