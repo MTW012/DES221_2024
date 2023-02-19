@@ -1,0 +1,62 @@
+.vertical-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.horizontal-panel {
+    display: flex;
+    flex-direction: row;
+}
+
+.main-panel {
+    width: 1200px;
+}
+
+.custom-graphics-canvas {
+    border-style: solid;
+    border-color:rgb(118, 28, 28)
+}
+
+.custom-graphics-code-pre {
+    height: 400px;
+}
+
+.toggled-on {
+    margin: 10px;
+    background-color: #2f6d31; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5%;
+}
+
+.toggled-off {
+    background-color: rgb(118, 28, 28);
+    margin: 10px;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5%;
+}
+
+
+.copy-button {
+    background-color: rgb(72, 39, 163);
+    margin: 10px;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5%;
+}
