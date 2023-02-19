@@ -19,7 +19,10 @@ class CustomSerial extends HTMLElement {
         this.keepReading = true;
         // this.finishedReadingPromise = null;
         // this.serialReadoutElement = null;
+        this.delimiterChar = 0x0A;
         this.tokenBuffer = new Uint8Array();
+
+        //this.serialInputProcessor = this.serialInputProcessor.bind(this);
 
         // get access to the DOM tree for this element
         const shadow = this.attachShadow({mode: 'open'});
@@ -40,17 +43,22 @@ class CustomSerial extends HTMLElement {
         this.mainPanel = CustomSerial.newElement('div', 'customSerialMainPanel', 'custom-serial main-panel horizontal-panel');
         this.mainStrip.appendChild(this.mainPanel);
 
-        this.mainLabel = CustomSerial.newElement('div', 'customSerialMainLabel', 'main-label');
-        this.mainLabel.innerHTML = "Serial Ports";
+        this.mainLabel = CustomSerial.newElement('div', 'customSerialMainLabel', 'main-label custom-serial-panel');
+        this.mainLabel.innerHTML = "Serial Port";
         this.mainPanel.appendChild(this.mainLabel);
   
         // Toggle button to connect/disconnect to attached devices
+        this.connectionPanel = CustomSerial.newElement('div', 'customSerialConnectionPanel', 'vertical-panel custom-serial-panel');
+        this.mainPanel.appendChild(this.connectionPanel);
+        // this.connectionLabel = CustomSerial.newElement('div', 'customSerialConnectionLabel', 'custom-serial-panel-label');
+        // this.connectionLabel.innerHTML = "connect";
+        // this.connectionPanel.appendChild(this.connectionLabel);
         this.connectButton = CustomSerial.newElement('button', 'customSerialConnectButton', 'port-toggle toggled-off');
         this.connectButton.innerHTML = "Connect";
-        this.mainPanel.appendChild(this.connectButton);
+        this.connectionPanel.appendChild(this.connectButton);
         this.connectButton.addEventListener('click', async () => {
             if (!this.connectedPort) { 
-                this.serialInputProcessor = this.createSerialInputProcessor(0x0A, this.handleToken.bind(this));
+                // this.serialInputProcessor = this.createSerialInputProcessor(0x0A, this.handleToken.bind(this));
                 
                 // look for an attached microbit
                 const usbVendorId = 0x0d28; // BBC Micro:bit
@@ -60,6 +68,8 @@ class CustomSerial extends HTMLElement {
                     // Connect to port
                     await this.connectedPort.open({ baudRate: 115200 });
                     this.connectButton.innerHTML = "Disconnect";
+                    this.connectButton.classList.remove('toggled-off');
+                    this.connectButton.classList.add('toggled-on');
                     
                     this.keepReading = true;
                     this.finishedReadingPromise = this.readSerialInput();
@@ -75,6 +85,9 @@ class CustomSerial extends HTMLElement {
                     await this.finishedReadingPromise;
                     this.connectedPort = null;
                     this.connectButton.innerHTML = "Connect";
+                    this.connectButton.classList.remove('toggled-on');
+                    this.connectButton.classList.add('toggled-off');
+                    
                 } catch (e) {
                     console.warn(`Error disconnecting from microbit: ${e}`);
                 }
@@ -82,27 +95,65 @@ class CustomSerial extends HTMLElement {
         });
 
         // button and text box for sending arbitrary strings to the attached device
-        this.sendSerialPanel = CustomSerial.newElement('div', 'customSerialSendPanel', 'horizontal-panel serial-send-panel');
-        this.mainPanel.appendChild(this.sendSerialPanel);
+        this.sendPanel = CustomSerial.newElement('div', 'customSerialSendPanel', 'vertical-panel custom-serial-panel');
+        this.mainPanel.appendChild(this.sendPanel);
         
+        // this.sendLabel = CustomSerial.newElement('div', 'customSerialSendLabel', 'custom-serial-panel-label');
+        // this.sendLabel.innerHTML = "send";
+        // this.sendPanel.appendChild(this.sendLabel);
+        
+        this.sendSerialSubPanel = CustomSerial.newElement('div', 'customSerialSendSubPanel', 'horizontal-panel', 'custom-serial-panel');
+        this.sendPanel.appendChild(this.sendSerialSubPanel);
+
         this.sendSerialButton = CustomSerial.newElement('button', 'customSerialSendButton', 'serial-send-button');
         this.sendSerialButton.innerHTML = "Send";
-        this.sendSerialPanel.appendChild(this.sendSerialButton);
+        this.sendSerialSubPanel.appendChild(this.sendSerialButton);
         
         this.sendSerialTextBox = CustomSerial.newElement('input', 'customSerialSendTextBox', 'serial-send-textbox');
         this.sendSerialTextBox.type = 'text';
         this.sendSerialTextBox.value = 'Hello';
-        this.sendSerialPanel.appendChild(this.sendSerialTextBox);
+        this.sendSerialSubPanel.appendChild(this.sendSerialTextBox);
 
         this.sendSerialButton.addEventListener('click', (event) => {
-            this.writeToSerial(this.sendSerialTextBox.value);
+            this.writeToSerial(this.sendSerialTextBox.value + "\n");
         });
 
+        // Text area for receiving serial data, and button for forwarding to MIDI
+        this.receivePanel = CustomSerial.newElement('div', 'customSerialReceivePanel', 'vertical-panel custom-serial-panel');
+        this.mainPanel.appendChild(this.receivePanel);
+        
+        // this.receiveLabel = CustomSerial.newElement('div', 'customSerialReceiveLabel', 'custom-serial-panel-label');
+        // this.receiveLabel.innerHTML = "receive";
+        // this.receivePanel.appendChild(this.receiveLabel);
+        
         this.serialReadoutElement = CustomSerial.newElement('div', 'customSerialReadout', 'custom-serial-readout');
-        this.mainPanel.appendChild(this.serialReadoutElement);
+        this.receivePanel.appendChild(this.serialReadoutElement);   
     }
 
     
+    // Decode tokens as UTF8 strings and log them to the console
+    handleToken = function(arr) {
+        const stringValue = new TextDecoder().decode(arr);
+        // console.log(stringValue.trim());
+        const val = stringValue.trim();
+        if (this.serialReadoutElement) {
+            this.serialReadoutElement.innerHTML = val;
+        }
+
+        const midi = document.querySelector('custom-midi');
+        if (midi) {
+            const noteOnMatch = val.match(/NoteOn (\d+) (\d+) (\d+)/);
+            if (noteOnMatch && noteOnMatch.length == 4) {
+                midi.sendNoteOn(parseInt(noteOnMatch[1]), parseInt(noteOnMatch[2]), parseInt(noteOnMatch[3]));
+            }
+            const noteOffMatch = val.match(/NoteOff (\d+) (\d+) (\d+)/);
+            if (noteOffMatch && noteOffMatch.length == 4) {
+                midi.sendNoteOff(parseInt(noteOffMatch[1]), parseInt(noteOffMatch[2]), parseInt(noteOffMatch[3]));
+            }
+        }
+    }
+
+
     expandTokenBuffer(arr) {
         let expandedBuffer = new Uint8Array(this.tokenBuffer.length + arr.length);
         expandedBuffer.set(this.tokenBuffer);
@@ -110,33 +161,25 @@ class CustomSerial extends HTMLElement {
         this.tokenBuffer = expandedBuffer;
     }
     
-    // chunk serial input characters into tokens according to a given delimiter
-    createSerialInputProcessor(delimiterChar, tokenHandler) {
-        const processor = function (arr) {
-            if (arr && arr.length) {
-                let ind = arr.indexOf(delimiterChar);
-                if (ind >= 0) {
-                    if (ind > 0) {
-                        let part = arr.slice(0, ind);
-                        this.expandTokenBuffer(part);
-                        tokenHandler(this.tokenBuffer);
-                        this.tokenBuffer = new Uint8Array(); 
-                    }
-                    processor(arr.subarray(ind+1));
-                } else {
-                    this.expandTokenBuffer(arr);
+  
+    serialInputProcessor(arr) {
+        if (arr && arr.length) {
+            let ind = arr.indexOf(this.delimiterChar);
+            if (ind >= 0) {
+                if (ind > 0) {
+                    let part = arr.slice(0, ind);
+                    this.expandTokenBuffer(part);
+                }    
+                try {
+                    this.handleToken(this.tokenBuffer);
+                } catch(e) {
+                    console.log(`Malformed token ${this.tokenBuffer}: ${e}`);
                 }
+                this.tokenBuffer = new Uint8Array(); 
+                this.serialInputProcessor(arr.subarray(ind+1));
+            } else {
+                this.expandTokenBuffer(arr);
             }
-        }
-        return processor;
-    }
-    
-    // Decode tokens as UTF8 strings and log them to the console
-    handleToken(arr) {
-        const stringValue = new TextDecoder().decode(arr);
-        // console.log(stringValue.trim());
-        if (this.serialReadoutElement) {
-            this.serialReadoutElement.innerHTML = stringValue.trim();
         }
     }
     

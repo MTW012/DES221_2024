@@ -24,7 +24,7 @@
 }
 
 .port-table {
-    background-color: rgb(105, 95, 95);
+    background-color: rgb(69, 62, 62);
     margin-left: 10px;
 }
 
@@ -50,7 +50,7 @@
 
 .toggled-on {
     margin: 10px;
-    background-color: #4CAF50; /* Green */
+    background-color: #2f6d31; /* Green */
     border: none;
     color: white;
     padding: 15px 32px;
@@ -62,7 +62,7 @@
 }
 
 .toggled-off {
-    background-color: rgb(187, 46, 46);
+    background-color: rgb(118, 28, 28);
     margin: 10px;
     border: none;
     color: white;
@@ -75,6 +75,6 @@
 }
 
 .main-label {
-    padding: 10px 30px 10px 10px;
+    padding: 10px 10px 10px 10px;
     font-size: 24px;
 }

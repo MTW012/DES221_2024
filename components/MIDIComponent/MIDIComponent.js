@@ -109,7 +109,7 @@ class CustomMIDI extends HTMLElement {
               if (outputPortToggle.classList.contains('toggled-on')) {
                 await outputPort.close();
                 outputPortToggle.classList.remove('toggled-on');
-                outputPortToggle.classList.remove('toggled-off');
+                outputPortToggle.classList.add('toggled-off');
                 outputPortToggle.innerHTML = 'Connect';
               } else {
                 await outputPort.open();
@@ -125,23 +125,31 @@ class CustomMIDI extends HTMLElement {
 
     connectedCallback() {
       console.log('MIDI custom element added to page.');
-      //populatePortTables(this);
       this.init();
     }
   
-    disconnectedCallback() {
-      console.log('MIDI custom element removed from page.');
-    }
-  
-    adoptedCallback() {
-      console.log('MIDI custom element moved to new page.');
-    }
-
     async init() {
       this.midi = await navigator.requestMIDIAccess();
       this.populatePortTables();
     }
-  
+ 
+    sendNoteOn(pitch, velocity, channel) {
+        const noteOnMessage = [0x90 + channel, pitch, velocity];
+        this.midi.outputs.forEach((outputPort) => {
+          if (outputPort.connection == "open") {
+            outputPort.send(noteOnMessage);
+          }
+        });
+    }  
+
+    sendNoteOff(pitch, velocity, channel) {
+      const noteOffMessage = [0x80 + channel, pitch, velocity];
+      this.midi.outputs.forEach((outputPort) => {
+        if (outputPort.connection == "open") {
+          outputPort.send(noteOffMessage);
+        }
+      });
+    }  
 }
   
 customElements.define('custom-midi', CustomMIDI);
