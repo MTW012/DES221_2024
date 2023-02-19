@@ -1,20 +1,20 @@
-const arrayOK = (x) => {
-  return (x && Array.isArray(x) && x.length > 0);
-}
+// const arrayOK = (x) => {
+//   return (x && Array.isArray(x) && x.length > 0);
+// }
 
 
-const removeChildren = (elem) => {
-  while (elem.childElementCount > 0) {
-    elem.removeChild(elem.lastChild);
-  }
-}
+// const removeChildren = (elem) => {
+//   while (elem.childElementCount > 0) {
+//     elem.removeChild(elem.lastChild);
+//   }
+// }
 
-let globalBeat = 0;
-let lastWholeBeat = 0;
-let lastBeatTime = 0;
-let tempo = 120;
-let tatum = (60000 / 16) / tempo;
-let renderTR;
+// let globalBeat = 0;
+// let lastWholeBeat = 0;
+// let lastBeatTime = 0;
+// let tempo = 120;
+// let tatum = (60000 / 16) / tempo;
+// let renderTR;
 
 class CustomGraphics extends HTMLElement {
 
@@ -36,7 +36,9 @@ class CustomGraphics extends HTMLElement {
 
     this.mouseX = 0;
     this.mouseY = 0;
-  
+    this.lastTime = performance.now() / 1000;
+    this.frame = 0;
+    
     // get access to the DOM tree for this element
     const shadow = this.attachShadow({mode: 'open'});
 
@@ -65,11 +67,41 @@ class CustomGraphics extends HTMLElement {
     shadow.appendChild(prismScriptElem);
 
     // create a top level full width strip to hold the component
-    this.mainStrip = CustomGraphics.newElement('div', 'customGraphicsMainStrip', 'custom-graphics main-strip');
+    this.mainStrip = CustomGraphics.newElement('div', 'customGraphicsMainStrip', 'custom-graphics main-strip vertical-panel');
     shadow.appendChild(this.mainStrip);
+
+    // expand/collapse component
+    this.titlePanel = CustomGraphics.newElement('div', 'customGraphicsTitlePanel', 'title-panel-collapsed horizontal-panel');
+    this.mainStrip.appendChild(this.titlePanel);
+
+    this.expandCollapseButton = CustomGraphics.newElement('button', 'customGraphicsExpandCollapseButton', 'expand-collapse-button collapsed');
+    this.expandCollapseButton.innerHTML = "+";
+    this.expandCollapseButton.addEventListener('click', (event) => {
+      if (this.mainPanel.style.visibility !== 'visible') {
+        this.mainPanel.style.visibility = 'visible';
+        this.expandCollapseButton.innerHTML = "-";
+        this.expandCollapseButton.classList.remove('collapsed');
+        this.expandCollapseButton.classList.add('expanded');
+        this.titlePanel.classList.remove('title-panel-collapsed');
+        this.titlePanel.classList.add('title-panel-expanded');
+      } else {
+        this.mainPanel.style.visibility = 'collapse';
+        this.expandCollapseButton.innerHTML = "+";
+        this.expandCollapseButton.classList.remove('expanded');
+        this.showCodeButton.classList.add('collapsed');
+        this.titlePanel.classList.remove('title-panel-expanded');
+        this.titlePanel.classList.add('title-panel-collapsed');
+      }
+    });
+    this.titlePanel.appendChild(this.expandCollapseButton);
+
+    this.mainLabel = CustomGraphics.newElement('div', 'CustomGraphicsMainLabel', 'custom-graphics-label');
+    this.mainLabel.innerHTML = "Graphics";
+    this.titlePanel.appendChild(this.mainLabel);
 
     // Create a top level panel, that need not be full width
     this.mainPanel = CustomGraphics.newElement('div', 'customGraphicsMainPanel', 'custom-graphics main-panel vertical-panel');
+    this.mainPanel.style.visibility = 'collapse';
     this.mainStrip.appendChild(this.mainPanel);
 
     this.canvas = CustomGraphics.newElement('canvas', 'customGraphicsCanvas', 'custom-graphics-canvas');
@@ -77,7 +109,7 @@ class CustomGraphics extends HTMLElement {
     this.canvas.height = "800";
     this.mainPanel.appendChild(this.canvas);
     this.canvas.addEventListener('mousemove', this.setMousePosition.bind(this));
-    this.gl = this.canvas.getContext('webgl');
+    this.gl = this.canvas.getContext('webgl2');
 
     // this.controlPanel = CustomGraphics.newElement('div', 'customGraphicsControlPanel', 'vertical custom-graphics-panel');
     // this.mainPanel.appendChild(this.controlPanel);
@@ -153,14 +185,14 @@ class CustomGraphics extends HTMLElement {
     // setup default shaders
     // Vertex shader program for spectrogram. This does nothing but pass directly through
     // All the interesting stuff happens in the fragment shader
-    this.vsSource = `
-    attribute vec4 aVertexPosition;
-    attribute vec2 aTextureCoord;
+    this.vsSource = `# version 300 es
+    in vec4 aVertexPosition;
+    in vec2 aTextureCoord;
 
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
 
-    varying highp vec2 vTextureCoord;
+    out highp vec2 vTextureCoord;
 
     void main(void) {
       gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
@@ -169,14 +201,18 @@ class CustomGraphics extends HTMLElement {
     `;
 
     // Fragment shader program for spectrogram
-    this.fsPrefix = `
+    this.fsPrefix = `# version 300 es
     precision highp float;
-    varying highp vec2 vTextureCoord;
+    in highp vec2 vTextureCoord;
 
     uniform vec3 iResolution;
-    uniform vec4 iMouse;
     uniform float iTime;
- 
+    uniform float iTimeDelta;
+    uniform int iFrame;
+    uniform float iFrameRate;
+    uniform vec4 iDate;
+    uniform vec4 iMouse;
+  
     `
 
     let shaderToySource = `
@@ -330,8 +366,9 @@ class CustomGraphics extends HTMLElement {
     
     this.fsPostfix = `
     
+    out vec4 fragColor;
     void main() {
-      mainImage(gl_FragColor, gl_FragCoord.xy);
+      mainImage(fragColor, gl_FragCoord.xy);
     }
     `;
 
@@ -386,12 +423,14 @@ class CustomGraphics extends HTMLElement {
         projectionMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uProjectionMatrix'),
         modelViewMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uModelViewMatrix'),
         resolution: this.gl.getUniformLocation(this.shaderProgram, "iResolution"),
-        mouse: this.gl.getUniformLocation(this.shaderProgram, "iMouse"),
         time: this.gl.getUniformLocation(this.shaderProgram, "iTime"),
+        timeDelta: this.gl.getUniformLocation(this.shaderProgram, "iTimeDelta"),
+        frame: this.gl.getUniformLocation(this.shaderProgram, "iFrame"),
+        frameDelta: this.gl.getUniformLocation(this.shaderProgram, "iFrameDelta"),
+        mouse: this.gl.getUniformLocation(this.shaderProgram, "iMouse"),
+        date: this.gl.getUniformLocation(this.shaderProgram, "iDate"),        
       },
     }; 
-
-
   }
 
   initCanvasBuffers(gl) {
@@ -509,7 +548,12 @@ class CustomGraphics extends HTMLElement {
   render( time ) {
     const gl = this.gl;
     time *= 0.001
-    
+    const timeDelta = time - this.lastTime;
+    this.lastTime = time;
+    this.frame++;
+    const frameRate = 1 / timeDelta;
+    const today = new Date();
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -621,8 +665,12 @@ class CustomGraphics extends HTMLElement {
     // gl.uniform1f(programInfo.uniformLocations.gain6, gains[5]);
     
     gl.uniform3f(this.programInfo.uniformLocations.resolution, gl.canvas.width, gl.canvas.height, 1);
-    gl.uniform4f(this.programInfo.uniformLocations.mouse, this.mouseX, this.mouseY, this.mouseX, this.mouseY);
     gl.uniform1f(this.programInfo.uniformLocations.time, time);
+    gl.uniform1f(this.programInfo.uniformLocations.timeDelta, timeDelta);
+    gl.uniform1i(this.programInfo.uniformLocations.frame, this.frame);
+    gl.uniform1f(this.programInfo.uniformLocations.frame, frameRate);
+    gl.uniform4f(this.programInfo.uniformLocations.mouse, this.mouseX, this.mouseY, this.mouseX, this.mouseY);
+    gl.uniform4f(this.programInfo.uniformLocations.date, today.getFullYear(), today.getMonth(), today.getDay(), today.getSeconds());
 
     { // process the textures into the quad
       const type = gl.UNSIGNED_SHORT;

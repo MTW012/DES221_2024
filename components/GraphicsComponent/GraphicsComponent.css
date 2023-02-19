@@ -12,6 +12,19 @@
     width: 1200px;
 }
 
+.title-panel-collapsed {
+    align-items: center;
+    border-style: solid;
+    border-color:rgb(118, 28, 28);
+}
+
+
+.title-panel-expanded {
+    align-items: center;
+    border-style: none;
+}
+
+
 .custom-graphics-canvas {
     border-style: solid;
     border-color:rgb(118, 28, 28)
@@ -58,5 +71,18 @@
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
+    border-radius: 5%;
+}
+
+.expand-collapse-button {
+    background-color: rgb(72, 39, 163);
+    margin: 10px;
+    border: none;
+    color: white;
+    /* padding: 15px 32px; */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
     border-radius: 5%;
 }
