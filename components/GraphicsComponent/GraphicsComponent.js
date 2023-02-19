@@ -173,8 +173,8 @@ class CustomGraphics extends HTMLElement {
     precision highp float;
     varying highp vec2 vTextureCoord;
 
-    uniform vec2 iResolution;
-    uniform vec2 iMouse;
+    uniform vec3 iResolution;
+    uniform vec4 iMouse;
     uniform float iTime;
  
     `
@@ -339,20 +339,20 @@ class CustomGraphics extends HTMLElement {
 
     //this.shaderProgram = this.initShaderProgram(this.gl, this.vsSource, this.fsSource);
 
-    this.programInfo = {
-      program: this.shaderProgram,
-      attribLocations: {
-        vertexPosition: this.gl.getAttribLocation(this.shaderProgram, 'aVertexPosition'),
-        textureCoord: this.gl.getAttribLocation(this.shaderProgram, 'aTextureCoord'),
-      },
-      uniformLocations: {
-        projectionMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uProjectionMatrix'),
-        modelViewMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uModelViewMatrix'),
-        resolution: this.gl.getUniformLocation(this.shaderProgram, "iResolution"),
-        mouse: this.gl.getUniformLocation(this.shaderProgram, "iMouse"),
-        time: this.gl.getUniformLocation(this.shaderProgram, "iTime"),
-      },
-    }; 
+    // this.programInfo = {
+    //   program: this.shaderProgram,
+    //   attribLocations: {
+    //     vertexPosition: this.gl.getAttribLocation(this.shaderProgram, 'aVertexPosition'),
+    //     textureCoord: this.gl.getAttribLocation(this.shaderProgram, 'aTextureCoord'),
+    //   },
+    //   uniformLocations: {
+    //     projectionMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uProjectionMatrix'),
+    //     modelViewMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uModelViewMatrix'),
+    //     resolution: this.gl.getUniformLocation(this.shaderProgram, "iResolution"),
+    //     mouse: this.gl.getUniformLocation(this.shaderProgram, "iMouse"),
+    //     time: this.gl.getUniformLocation(this.shaderProgram, "iTime"),
+    //   },
+    // }; 
 
   }
 
@@ -375,6 +375,23 @@ class CustomGraphics extends HTMLElement {
     this.shaderToyCode.innerHTML = srcString.replace(/&/g, "&amp").replace(/</g, "&lt").replace(/>/g, "&gt");
     this.combineFragmentShaderSources();
     this.shaderProgram = this.initShaderProgram(this.gl, this.vsSource, this.fsSource);
+    
+    this.programInfo = {
+      program: this.shaderProgram,
+      attribLocations: {
+        vertexPosition: this.gl.getAttribLocation(this.shaderProgram, 'aVertexPosition'),
+        textureCoord: this.gl.getAttribLocation(this.shaderProgram, 'aTextureCoord'),
+      },
+      uniformLocations: {
+        projectionMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uProjectionMatrix'),
+        modelViewMatrix: this.gl.getUniformLocation(this.shaderProgram, 'uModelViewMatrix'),
+        resolution: this.gl.getUniformLocation(this.shaderProgram, "iResolution"),
+        mouse: this.gl.getUniformLocation(this.shaderProgram, "iMouse"),
+        time: this.gl.getUniformLocation(this.shaderProgram, "iTime"),
+      },
+    }; 
+
+
   }
 
   initCanvasBuffers(gl) {
@@ -603,8 +620,8 @@ class CustomGraphics extends HTMLElement {
     // gl.uniform1f(programInfo.uniformLocations.gain5, gains[4]);
     // gl.uniform1f(programInfo.uniformLocations.gain6, gains[5]);
     
-    gl.uniform2f(this.programInfo.uniformLocations.resolution, gl.canvas.width, gl.canvas.height);
-    gl.uniform2f(this.programInfo.uniformLocations.mouse, this.mouseX, this.mouseY);
+    gl.uniform3f(this.programInfo.uniformLocations.resolution, gl.canvas.width, gl.canvas.height, 1);
+    gl.uniform4f(this.programInfo.uniformLocations.mouse, this.mouseX, this.mouseY, this.mouseX, this.mouseY);
     gl.uniform1f(this.programInfo.uniformLocations.time, time);
 
     { // process the textures into the quad
