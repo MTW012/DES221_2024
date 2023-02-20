@@ -180,6 +180,16 @@ class CustomMIDI extends HTMLElement {
         }
       });
     }  
+
+    sendControlChange(controller, value, channel) {
+      const controlChangeMessage = [0xB0 + channel, controller, value];
+      this.midi.outputs.forEach((outputPort) => {
+        if (outputPort.connection == "open") {
+          outputPort.send(controlChangeMessage);
+        }
+      });
+    }
+
 }
   
 customElements.define('custom-midi', CustomMIDI);

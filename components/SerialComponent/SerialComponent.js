@@ -236,11 +236,15 @@ class CustomSerial extends HTMLElement {
                 if (noteOffMatch && noteOffMatch.length == 4) {
                     midi.sendNoteOff(parseInt(noteOffMatch[1]), parseInt(noteOffMatch[2]), parseInt(noteOffMatch[3]));
                 }
+                const controlChangeMatch = val.match(/ControlChange (\d+) (\d+) (\d+)/);
+                if (controlChangeMatch && controlChangeMatch.length == 4) {
+                    midi.sendControlChange(parseInt(controlChangeMatch[1]), parseInt(controlChangeMatch[2]), parseInt(controlChangeMatch[3]));
+                }
             }
         }
 
         if (this.receiveGraphics && matchesGraphics) {
-            // send MIDI messages to the MIDI component
+            // send Graphics messages to the Graphics component
             const graphics = document.querySelector('custom-graphics');
             if (graphics) {
                 const pitchMatch = val.match(/Pitch (\d+)/);
