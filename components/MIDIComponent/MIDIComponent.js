@@ -25,16 +25,46 @@ class CustomMIDI extends HTMLElement {
       shadow.appendChild(linkElem);
 
       // create a top level full width strip to hold the component
-      this.mainStrip = CustomMIDI.newElement('div', 'customMidiMainStrip', 'custom-midi main-strip');
+      this.mainStrip = CustomMIDI.newElement('div', 'customMidiMainStrip', 'custom-midi main-strip vertical-panel');
       shadow.appendChild(this.mainStrip);
+
+      // expand/collapse component
+      this.titlePanel = CustomMIDI.newElement('div', 'customMidiTitlePanel', 'title-panel-collapsed horizontal-panel');
+      this.mainStrip.appendChild(this.titlePanel);
+
+      this.expandCollapseButton = CustomMIDI.newElement('button', 'customMidiExpandCollapseButton', 'expand-collapse-button collapsed');
+      this.expandCollapseButton.innerHTML = "+";
+      this.expandCollapseButton.addEventListener('click', (event) => {
+        if (this.mainPanel.style.display === 'none') {
+          this.mainPanel.style.display = 'flex';
+          this.expandCollapseButton.innerHTML = "-";
+          this.expandCollapseButton.classList.remove('collapsed');
+          this.expandCollapseButton.classList.add('expanded');
+          this.titlePanel.classList.remove('title-panel-collapsed');
+          this.titlePanel.classList.add('title-panel-expanded');
+        } else {
+          this.mainPanel.style.display = 'none';
+          this.expandCollapseButton.innerHTML = "+";
+          this.expandCollapseButton.classList.remove('expanded');
+          this.expandCollapseButton.classList.add('collapsed');
+          this.titlePanel.classList.remove('title-panel-expanded');
+          this.titlePanel.classList.add('title-panel-collapsed');
+        }
+      });
+      this.titlePanel.appendChild(this.expandCollapseButton);
+
+      this.mainLabel = CustomMIDI.newElement('div', 'CustomMidiMainLabel', 'custom-midi-label');
+      this.mainLabel.innerHTML = "MIDI ports";
+      this.titlePanel.appendChild(this.mainLabel);
 
       // Create a top level panel, that need not be full width
       this.mainPanel = CustomMIDI.newElement('div', 'customMidiMainPanel', 'custom-midi main-panel horizontal-panel');
+      this.mainPanel.style.display = 'none';
       this.mainStrip.appendChild(this.mainPanel);
 
-      this.mainLabel = CustomMIDI.newElement('div', 'customMidiMainLabel', 'main-label');
-      this.mainLabel.innerHTML = "MIDI Ports";
-      this.mainPanel.appendChild(this.mainLabel);
+      // this.mainLabel = CustomMIDI.newElement('div', 'customMidiMainLabel', 'main-label');
+      // this.mainLabel.innerHTML = "MIDI Ports";
+      // this.mainPanel.appendChild(this.mainLabel);
 
       // Populate an input and output port table, with toggle buttons to connect/disconnect
       this.inputPortTable = CustomMIDI.newElement('div', 'customMidiInputPortTable', 'port-table vertical-panel');

@@ -39,13 +39,44 @@ class CustomSerial extends HTMLElement {
         this.mainStrip = CustomSerial.newElement('div', 'customSerialMainStrip', 'custom-serial main-strip');
         shadow.appendChild(this.mainStrip);
 
+        // expand/collapse component
+        this.titlePanel = CustomSerial.newElement('div', 'customSerialTitlePanel', 'title-panel-collapsed horizontal-panel');
+        this.mainStrip.appendChild(this.titlePanel);
+
+        this.expandCollapseButton = CustomSerial.newElement('button', 'customMidiExpandCollapseButton', 'expand-collapse-button collapsed');
+        this.expandCollapseButton.innerHTML = "+";
+        this.expandCollapseButton.addEventListener('click', (event) => {
+            if (this.mainPanel.style.display === 'none') {
+            this.mainPanel.style.display = 'flex';
+            this.expandCollapseButton.innerHTML = "-";
+            this.expandCollapseButton.classList.remove('collapsed');
+            this.expandCollapseButton.classList.add('expanded');
+            this.titlePanel.classList.remove('title-panel-collapsed');
+            this.titlePanel.classList.add('title-panel-expanded');
+            } else {
+            this.mainPanel.style.display = 'none';
+            this.expandCollapseButton.innerHTML = "+";
+            this.expandCollapseButton.classList.remove('expanded');
+            this.expandCollapseButton.classList.add('collapsed');
+            this.titlePanel.classList.remove('title-panel-expanded');
+            this.titlePanel.classList.add('title-panel-collapsed');
+            }
+        });
+        this.titlePanel.appendChild(this.expandCollapseButton);
+
+        this.mainLabel = CustomSerial.newElement('div', 'CustomSerialMainLabel', 'custom-serial-label');
+        this.mainLabel.innerHTML = "Micro:bit";
+        this.titlePanel.appendChild(this.mainLabel);
+
+
         // Create a top level panel
         this.mainPanel = CustomSerial.newElement('div', 'customSerialMainPanel', 'custom-serial main-panel horizontal-panel');
+        this.mainPanel.style.display = 'none';
         this.mainStrip.appendChild(this.mainPanel);
 
-        this.mainLabel = CustomSerial.newElement('div', 'customSerialMainLabel', 'main-label custom-serial-panel');
-        this.mainLabel.innerHTML = "Serial Port";
-        this.mainPanel.appendChild(this.mainLabel);
+        // this.mainLabel = CustomSerial.newElement('div', 'customSerialMainLabel', 'main-label custom-serial-panel');
+        // this.mainLabel.innerHTML = "Serial Port";
+        // this.mainPanel.appendChild(this.mainLabel);
   
         // Toggle button to connect/disconnect to attached devices
         this.connectionPanel = CustomSerial.newElement('div', 'customSerialConnectionPanel', 'vertical-panel custom-serial-panel');

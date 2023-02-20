@@ -88,7 +88,7 @@ class CustomGraphics extends HTMLElement {
         this.mainPanel.style.visibility = 'collapse';
         this.expandCollapseButton.innerHTML = "+";
         this.expandCollapseButton.classList.remove('expanded');
-        this.showCodeButton.classList.add('collapsed');
+        this.expandCollapseButton.classList.add('collapsed');
         this.titlePanel.classList.remove('title-panel-expanded');
         this.titlePanel.classList.add('title-panel-collapsed');
       }
