@@ -150,15 +150,62 @@ class CustomSerial extends HTMLElement {
         });
 
         // Text area for receiving serial data, and button for forwarding to MIDI
-        this.receivePanel = CustomSerial.newElement('div', 'customSerialReceivePanel', 'vertical-panel custom-serial-panel');
+        this.receivePanel = CustomSerial.newElement('div', 'customSerialReceivePanel', 'horizontal-panel custom-serial-panel');
         this.mainPanel.appendChild(this.receivePanel);
         
         // this.receiveLabel = CustomSerial.newElement('div', 'customSerialReceiveLabel', 'custom-serial-panel-label');
         // this.receiveLabel.innerHTML = "receive";
         // this.receivePanel.appendChild(this.receiveLabel);
+        this.receiveMIDI = true;
+        this.receiveMIDIButton = CustomSerial.newElement('div', 'customSerialReceiveMIDIButton', 'filter-toggle toggled-on');
+        this.receiveMIDIButton.innerHTML = "MIDI";
+        this.receivePanel.appendChild(this.receiveMIDIButton);
+        this.receiveMIDIButton.addEventListener('click', async () => {
+            if (!this.receiveMIDI) { 
+                this.receiveMIDI = true;
+                this.receiveMIDIButton.classList.remove('toggled-off');
+                this.receiveMIDIButton.classList.add('toggled-on');
+            } else {
+                this.receiveMIDI = false;
+                this.receiveMIDIButton.classList.remove('toggled-on');
+                this.receiveMIDIButton.classList.add('toggled-off');                    
+            }
+        });
+
+        this.receiveGraphics = true;
+        this.receiveGraphicsButton = CustomSerial.newElement('div', 'customSerialReceiveGraphicsButton', 'filter-toggle toggled-on');
+        this.receiveGraphicsButton.innerHTML = "Graphics";
+        this.receivePanel.appendChild(this.receiveGraphicsButton);
+        this.receiveGraphicsButton.addEventListener('click', async () => {
+            if (!this.receiveGraphics) { 
+                this.receiveGraphics = true;
+                this.receiveGraphicsButton.classList.remove('toggled-off');
+                this.receiveGraphicsButton.classList.add('toggled-on');
+            } else {
+                this.receiveGraphics = false;
+                this.receiveGraphicsButton.classList.remove('toggled-on');
+                this.receiveGraphicsButton.classList.add('toggled-off');                    
+            }
+        });
+        
+        this.receiveOther = true;
+        this.receiveOtherButton = CustomSerial.newElement('div', 'customSerialReceiveOtherButton', 'filter-toggle toggled-on');
+        this.receiveOtherButton.innerHTML = "Other";
+        this.receivePanel.appendChild(this.receiveOtherButton);
+        this.receiveOtherButton.addEventListener('click', async () => {
+            if (!this.receiveOther) { 
+                this.receiveOther = true;
+                this.receiveOtherButton.classList.remove('toggled-off');
+                this.receiveOtherButton.classList.add('toggled-on');
+            } else {
+                this.receiveOther = false;
+                this.receiveOtherButton.classList.remove('toggled-on');
+                this.receiveOtherButton.classList.add('toggled-off');                    
+            }
+        });
         
         this.serialReadoutElement = CustomSerial.newElement('div', 'customSerialReadout', 'custom-serial-readout');
-        this.receivePanel.appendChild(this.serialReadoutElement);   
+        this.receivePanel.appendChild(this.serialReadoutElement);
     }
 
     
@@ -167,21 +214,46 @@ class CustomSerial extends HTMLElement {
         const stringValue = new TextDecoder().decode(arr);
         // console.log(stringValue.trim());
         const val = stringValue.trim();
-        if (this.serialReadoutElement) {
-            this.serialReadoutElement.innerHTML = val;
+        const matchesMIDI = val.match(/^MIDI/);
+        const matchesGraphics = val.match(/^Graphics/);
+        const matchesOther = !(matchesMIDI || matchesGraphics);
+        
+        if ((this.receiveMIDI && matchesMIDI) || (this.receiveGraphics && matchesGraphics) || (this.receiveOther && matchesOther)) {
+            if (this.serialReadoutElement) {
+                this.serialReadoutElement.innerHTML = val;
+            }
         }
 
-        const midi = document.querySelector('custom-midi');
-        if (midi) {
-            const noteOnMatch = val.match(/NoteOn (\d+) (\d+) (\d+)/);
-            if (noteOnMatch && noteOnMatch.length == 4) {
-                midi.sendNoteOn(parseInt(noteOnMatch[1]), parseInt(noteOnMatch[2]), parseInt(noteOnMatch[3]));
-            }
-            const noteOffMatch = val.match(/NoteOff (\d+) (\d+) (\d+)/);
-            if (noteOffMatch && noteOffMatch.length == 4) {
-                midi.sendNoteOff(parseInt(noteOffMatch[1]), parseInt(noteOffMatch[2]), parseInt(noteOffMatch[3]));
+        if (this.receiveMIDI && matchesMIDI) {
+            // send MIDI messages to the MIDI component
+            const midi = document.querySelector('custom-midi');
+            if (midi) {
+                const noteOnMatch = val.match(/NoteOn (\d+) (\d+) (\d+)/);
+                if (noteOnMatch && noteOnMatch.length == 4) {
+                    midi.sendNoteOn(parseInt(noteOnMatch[1]), parseInt(noteOnMatch[2]), parseInt(noteOnMatch[3]));
+                }
+                const noteOffMatch = val.match(/NoteOff (\d+) (\d+) (\d+)/);
+                if (noteOffMatch && noteOffMatch.length == 4) {
+                    midi.sendNoteOff(parseInt(noteOffMatch[1]), parseInt(noteOffMatch[2]), parseInt(noteOffMatch[3]));
+                }
             }
         }
+
+        if (this.receiveGraphics && matchesGraphics) {
+            // send MIDI messages to the MIDI component
+            const graphics = document.querySelector('custom-graphics');
+            if (graphics) {
+                const pitchMatch = val.match(/Pitch (\d+)/);
+                if (pitchMatch && pitchMatch.length == 2) {
+                    graphics.receiveTiltPitch(parseInt(pitchMatch[1]));
+                }
+                const rollMatch = val.match(/Roll (\d+)/);
+                if (rollMatch && rollMatch.length == 2) {
+                    graphics.receiveTiltRoll(parseInt(rollMatch[1]));
+                }
+            }
+        }
+
     }
 
 

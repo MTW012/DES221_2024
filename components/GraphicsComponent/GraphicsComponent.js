@@ -399,8 +399,29 @@ class CustomGraphics extends HTMLElement {
     const rect = this.canvas.getBoundingClientRect();
     this.mouseX = e.clientX - rect.left;
     this.mouseY = rect.height - (e.clientY - rect.top) - 1;  // bottom is 0 in WebGL
+    // console.log(`Mouse: ${this.mouseX} ${this.mouseY}`);
   }
 
+  // convert tilt values into mouseX mouseY
+  receiveTiltPitch(val) {
+    // Pitch values go from -180 to 180, with 0 being flat upright (these are degrees)
+    // Map pitch to the mouseY with 0 degrees being in the centre
+    const rect = this.canvas.getBoundingClientRect();
+    const halfwayUp = rect.bottom - rect.height / 2; // DOMRects are upside down
+    const r = val / 180;
+    this.mouseY = halfwayUp - r * rect.height / 2;
+  } 
+
+  // convert tilt values into mouseX mouseY
+  receiveTiltRoll(val) {
+    // Roll values go from -180 to 180, with 0 being flat upright (these are degrees)
+    // Map roll to the mouseX with 0 degrees being in the centre
+    const rect = this.canvas.getBoundingClientRect();
+    const halfwayAcross = rect.left + rect.width / 2;
+    const r = val / 180;
+    this.mouseX = halfwayAcross + r * rect.width / 2;
+  } 
+  
   // Combines the copy/pasted code from shaderToy into our proper fragment shader
   combineFragmentShaderSources() {
     this.fsSource = this.fsPrefix + this.shaderToySource + this.fsPostfix;
