@@ -1,0 +1,145 @@
+.vertical-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.horizontal-panel {
+    display: flex;
+    flex-direction: row;
+}
+
+
+#customSerialMainStrip {    
+    /* display: flex;
+    align-items: flex-start; */
+    margin-bottom: 10px;
+}
+
+
+#customSerialMainPanel {    
+    background-color:  rgb(19, 18, 18);
+    color: aliceblue;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    align-items: stretch;
+    margin: 10px;
+    border-style: solid;
+    border-color: rgb(111, 110, 110);
+    padding: 5px;
+}
+
+
+#customSerialSendSubPanel {    
+    align-items: center;
+}
+
+
+.port-toggle {
+    min-width: 75px;
+    min-height: 30px;
+}
+
+
+.toggled-on {
+    margin: 10px;
+    background-color: #2c682e; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5%;
+}
+
+.toggled-off {
+    background-color: rgb(111, 27, 27);
+    margin: 10px;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5%;
+}
+
+.serial-send-button {
+    background-color: rgb(72, 39, 163);
+    margin: 10px;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5%;
+}
+
+
+.serial-send-textbox {
+    border-style: solid;
+    border-color: rgb(71, 64, 55);
+    background-color: rgb(25, 3, 83);
+    color: aliceblue;
+    padding: 10px;
+    font-size: 16px;
+    height: 50px;
+}
+
+
+.custom-serial-panel {
+    background-color: rgb(45, 41, 41);
+    margin: 5px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-serial-panel-label {
+    font-size: 12px;
+    text-align: center;
+}
+
+.custom-serial-readout {
+    border-style: solid;
+    border-color: rgb(71, 64, 55);
+    background-color: rgb(10, 11, 10);
+    min-width: 150px;
+    min-height: 50px;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+}
+
+/* .main-label {
+    padding: 10px 10px 10px 10px;
+    font-size: 24px;
+} */
+
+.title-panel-collapsed {
+    align-items: center;
+    border-style: solid;
+    border-color:rgb(118, 28, 28);
+}
+
+.title-panel-expanded {
+    align-items: center;
+    border-style: none;
+}
+
+.expand-collapse-button {
+    background-color: rgb(72, 39, 163);
+    margin: 10px;
+    border: none;
+    color: white;
+    /* padding: 15px 32px; */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    border-radius: 5%;
+}
