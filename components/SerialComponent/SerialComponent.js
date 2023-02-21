@@ -14,15 +14,9 @@ class CustomSerial extends HTMLElement {
         super();
         
         // class variables
-        // this.connectedPort = null;
-        // this.reader = null;
         this.keepReading = true;
-        // this.finishedReadingPromise = null;
-        // this.serialReadoutElement = null;
         this.delimiterChar = 0x0A;
         this.tokenBuffer = new Uint8Array();
-
-        //this.serialInputProcessor = this.serialInputProcessor.bind(this);
 
         // get access to the DOM tree for this element
         const shadow = this.attachShadow({mode: 'open'});
@@ -74,23 +68,14 @@ class CustomSerial extends HTMLElement {
         this.mainPanel.style.display = 'none';
         this.mainStrip.appendChild(this.mainPanel);
 
-        // this.mainLabel = CustomSerial.newElement('div', 'customSerialMainLabel', 'main-label custom-serial-panel');
-        // this.mainLabel.innerHTML = "Serial Port";
-        // this.mainPanel.appendChild(this.mainLabel);
-  
         // Toggle button to connect/disconnect to attached devices
         this.connectionPanel = CustomSerial.newElement('div', 'customSerialConnectionPanel', 'vertical-panel custom-serial-panel');
         this.mainPanel.appendChild(this.connectionPanel);
-        // this.connectionLabel = CustomSerial.newElement('div', 'customSerialConnectionLabel', 'custom-serial-panel-label');
-        // this.connectionLabel.innerHTML = "connect";
-        // this.connectionPanel.appendChild(this.connectionLabel);
         this.connectButton = CustomSerial.newElement('button', 'customSerialConnectButton', 'port-toggle toggled-off');
         this.connectButton.innerHTML = "Connect";
         this.connectionPanel.appendChild(this.connectButton);
         this.connectButton.addEventListener('click', async () => {
             if (!this.connectedPort) { 
-                // this.serialInputProcessor = this.createSerialInputProcessor(0x0A, this.handleToken.bind(this));
-                
                 // look for an attached microbit
                 const usbVendorId = 0x0d28; // BBC Micro:bit
                 try {
@@ -128,11 +113,7 @@ class CustomSerial extends HTMLElement {
         // button and text box for sending arbitrary strings to the attached device
         this.sendPanel = CustomSerial.newElement('div', 'customSerialSendPanel', 'vertical-panel custom-serial-panel');
         this.mainPanel.appendChild(this.sendPanel);
-        
-        // this.sendLabel = CustomSerial.newElement('div', 'customSerialSendLabel', 'custom-serial-panel-label');
-        // this.sendLabel.innerHTML = "send";
-        // this.sendPanel.appendChild(this.sendLabel);
-        
+              
         this.sendSerialSubPanel = CustomSerial.newElement('div', 'customSerialSendSubPanel', 'horizontal-panel', 'custom-serial-panel');
         this.sendPanel.appendChild(this.sendSerialSubPanel);
 
@@ -153,9 +134,6 @@ class CustomSerial extends HTMLElement {
         this.receivePanel = CustomSerial.newElement('div', 'customSerialReceivePanel', 'horizontal-panel custom-serial-panel');
         this.mainPanel.appendChild(this.receivePanel);
         
-        // this.receiveLabel = CustomSerial.newElement('div', 'customSerialReceiveLabel', 'custom-serial-panel-label');
-        // this.receiveLabel.innerHTML = "receive";
-        // this.receivePanel.appendChild(this.receiveLabel);
         this.receiveMIDI = true;
         this.receiveMIDIButton = CustomSerial.newElement('div', 'customSerialReceiveMIDIButton', 'filter-toggle toggled-on');
         this.receiveMIDIButton.innerHTML = "MIDI";
