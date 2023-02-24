@@ -372,7 +372,7 @@ class CustomGraphics extends HTMLElement {
     // Map pitch to the mouseY with 0 degrees being in the centre
     const rect = this.canvas.getBoundingClientRect();
     const halfwayUp = rect.bottom - rect.height / 2; // DOMRects are upside down
-    const r = val / 180;
+    const r = Math.max(Math.min(val, 90), -90) / 90;
     this.mouseY = halfwayUp - r * rect.height / 2;
   } 
 
@@ -382,7 +382,7 @@ class CustomGraphics extends HTMLElement {
     // Map roll to the mouseX with 0 degrees being in the centre
     const rect = this.canvas.getBoundingClientRect();
     const halfwayAcross = rect.left + rect.width / 2;
-    const r = val / 180;
+    const r = Math.max(Math.min(val, 90), -90) / 90;
     this.mouseX = halfwayAcross + r * rect.width / 2;
   } 
   
