@@ -225,11 +225,11 @@ class CustomSerial extends HTMLElement {
             // send Graphics messages to the Graphics component
             const graphics = document.querySelector('custom-graphics');
             if (graphics) {
-                const pitchMatch = val.match(/Pitch (\d+)/);
+                const pitchMatch = val.match(/Pitch ([-]?\d+)/);
                 if (pitchMatch && pitchMatch.length == 2) {
                     graphics.receiveTiltPitch(parseInt(pitchMatch[1]));
                 }
-                const rollMatch = val.match(/Roll (\d+)/);
+                const rollMatch = val.match(/Roll ([-]?\d+)/);
                 if (rollMatch && rollMatch.length == 2) {
                     graphics.receiveTiltRoll(parseInt(rollMatch[1]));
                 }
