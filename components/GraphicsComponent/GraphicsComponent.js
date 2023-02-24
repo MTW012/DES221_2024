@@ -1,21 +1,3 @@
-// const arrayOK = (x) => {
-//   return (x && Array.isArray(x) && x.length > 0);
-// }
-
-
-// const removeChildren = (elem) => {
-//   while (elem.childElementCount > 0) {
-//     elem.removeChild(elem.lastChild);
-//   }
-// }
-
-// let globalBeat = 0;
-// let lastWholeBeat = 0;
-// let lastBeatTime = 0;
-// let tempo = 120;
-// let tatum = (60000 / 16) / tempo;
-// let renderTR;
-
 class CustomGraphics extends HTMLElement {
 
   // A utility function for creating a new html element with given id and class
@@ -374,7 +356,8 @@ class CustomGraphics extends HTMLElement {
 
     this.setShaderToySource(shaderToySource);
 
-
+  }
+  
   // mouse tracking in the graphics canvas
   setMousePosition(e) {
     const rect = this.canvas.getBoundingClientRect();
