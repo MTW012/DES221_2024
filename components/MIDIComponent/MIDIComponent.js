@@ -78,8 +78,21 @@ class CustomMIDI extends HTMLElement {
       this.outputPortTableHeader = CustomMIDI.newElement('div', 'customMidiOutputPortTableHeader', 'port-table-header');
       this.outputPortTableHeader.innerHTML = 'MIDI Outputs';
       this.outputPortTable.appendChild(this.outputPortTableHeader);
+
+      // create a textbox for soloing particular messages. This is helpful for MIDI learn when you can't just
+      // move one controller at a time (because it is an xy-tilt for example)
+      this.filterMidiTable = CustomMIDI.newElement('div', 'customFilterMidiTable', 'port-table vertical-panel');
+      this.mainPanel.appendChild(this.filterMidiTable);
+      
+      this.filterMidiTableHeader = CustomMIDI.newElement('div', 'customMidiFilterMidiTableHeader', 'port-table-header');
+      this.filterMidiTableHeader.innerHTML = 'Restrict to messages starting with:';
+      this.filterMidiTable.appendChild(this.filterMidiTableHeader);
+
+      // keep a list of observed midi messages
+      this.filteredMessages = new Map();
     }
   
+
     populatePortTables() {
       if (this.midi) {
         if (this.midi.inputs) {
@@ -98,7 +111,7 @@ class CustomMIDI extends HTMLElement {
             if (inputPort.connection == 'open') {
               inputPortToggle.classList.remove('toggled-off');
               inputPortToggle.classList.add('toggled-on');
-              inputPortToggle.innerHTML = "Diconnect";
+              inputPortToggle.innerHTML = "Disconnect";
             }
             inputPortToggle.addEventListener('click', async (event) => {
               if (inputPortToggle.classList.contains('toggled-on')) {
@@ -153,6 +166,44 @@ class CustomMIDI extends HTMLElement {
       }
     }
 
+    addMidiMessageToFilterList(msgByteArray) {
+      if (!this.filteredMessages.has(msgByteArray.slice(0,2))) {
+        this.filteredMessages.set(msgByteArray.slice(0,2), true);
+        const msgType = msgByteArray[0] >> 4;
+        const msgChannel = msgByteArray[0] - msgType;
+        const msgSelector = msgByteArray[1];
+
+        const filterMidiPanel = CustomMIDI.newElement('div', 'CustomMidiFilterMidiPanel', 'port-panel horizontal-panel'); 
+        this.filterMidiTable.appendChild(filterMidiPanel);
+        const filterMidiMsg = CustomMIDI.newElement('div', 'customMidiFilterMidiMsgType', 'port-name');
+        if (msgType == 0x9) {
+          filterMidiMsg.innerHTML = `Note-On Chan: ${msgChannel} Pitch: ${msgSelector}`;  
+        } else if (msgType == 0x8) {
+          filterMidiMsg.innerHTML = `Note-Off Chan: ${msgChannel} Pitch: ${msgSelector}`;  
+        } else if (msgType == 0xB) {
+          filterMidiMsg.innerHTML = `Control-Change Chan: ${msgChannel} Controller: ${msgSelector}`;  
+        }
+        filterMidiPanel.appendChild(filterMidiMsg);
+        // toggle button for connecting
+        const filterMidiToggle = CustomMIDI.newElement('button', `filterMidiToggle_${this.filteredMessages.size}`, 'midi-message-toggle toggled-on');
+        filterMidiToggle.innerHTML = "Disallow";
+        filterMidiPanel.appendChild(filterMidiToggle);
+        filterMidiToggle.addEventListener('click', async (event) => {
+          if (filterMidiToggle.classList.contains('toggled-on')) {
+            this.filteredMessages.set(msgByteArray.slice(0,2), 'false');
+            inputPortToggle.classList.remove('toggled-on');
+            inputPortToggle.classList.add('toggled-off');
+            inputPortToggle.innerHTML = 'Disallow';
+          } else {
+            this.filteredMessages.set(msgByteArray.slice(0,2), 'true');
+            inputPortToggle.classList.remove('toggled-off');
+            inputPortToggle.classList.add('toggled-on');
+            inputPortToggle.innerHTML = 'Allow';
+          }          
+        });
+      }        
+    }
+
     connectedCallback() {
       console.log('MIDI custom element added to page.');
       this.init();
@@ -164,30 +215,39 @@ class CustomMIDI extends HTMLElement {
     }
  
     sendNoteOn(pitch, velocity, channel) {
-        const noteOnMessage = [0x90 + channel, pitch, velocity];
+      const noteOnMessage = [0x90 + channel, pitch, velocity];
+      this.addMidiMessageToFilterList(noteOnMessage);
+      if (this.filteredMessages.get(noteOnMessage.slice(0,2))) {
         this.midi.outputs.forEach((outputPort) => {
           if (outputPort.connection == "open") {
             outputPort.send(noteOnMessage);
           }
         });
+      }
     }  
 
     sendNoteOff(pitch, velocity, channel) {
       const noteOffMessage = [0x80 + channel, pitch, velocity];
-      this.midi.outputs.forEach((outputPort) => {
-        if (outputPort.connection == "open") {
-          outputPort.send(noteOffMessage);
-        }
-      });
+      this.addMidiMessageToFilterList(noteOffMessage);
+      if (this.filteredMessages.get(noteOffMessage.slice(0,2))) {
+        this.midi.outputs.forEach((outputPort) => {
+          if (outputPort.connection == "open") {
+            outputPort.send(noteOffMessage);
+          }
+        });
+      }
     }  
 
     sendControlChange(controller, value, channel) {
       const controlChangeMessage = [0xB0 + channel, controller, value];
-      this.midi.outputs.forEach((outputPort) => {
-        if (outputPort.connection == "open") {
-          outputPort.send(controlChangeMessage);
-        }
-      });
+      this.addMidiMessageToFilterList(controlChangeMessage);
+      if (this.filteredMessages.get(controlChangeMessage.slice(0,2))) {
+        this.midi.outputs.forEach((outputPort) => {
+          if (outputPort.connection == "open") {
+            outputPort.send(controlChangeMessage);
+          }
+        });
+      }
     }
 
 }
