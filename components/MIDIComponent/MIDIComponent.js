@@ -84,9 +84,37 @@ class CustomMIDI extends HTMLElement {
       this.filterMidiTable = CustomMIDI.newElement('div', 'customFilterMidiTable', 'port-table vertical-panel');
       this.mainPanel.appendChild(this.filterMidiTable);
       
-      this.filterMidiTableHeader = CustomMIDI.newElement('div', 'customMidiFilterMidiTableHeader', 'port-table-header');
-      this.filterMidiTableHeader.innerHTML = 'Restrict to messages starting with:';
+      this.filterMidiTableHeader = CustomMIDI.newElement('div', 'customMidiFilterMidiTableHeader', 'port-table-header horizontal-panel');
       this.filterMidiTable.appendChild(this.filterMidiTableHeader);
+
+      this.filterMidiTableLabel = CustomMIDI.newElement('div', 'customMidiFilterMidiTableLabel', 'filter-tabel-label');
+      this.filterMidiTableLabel.innerHTML = 'Restrict to messages starting with:';
+      this.filterMidiTableHeader.appendChild(this.filterMidiTableLabel);
+
+      this.filterMidiTableBody  = CustomMIDI.newElement('div', 'customMidiFilterMidiTableBody', 'vertical-panel');
+      this.filterMidiTable.appendChild(this.filterMidiTableBody);
+      this.filterMidiTableBody.style.display = 'none';
+
+      this.filterMidiExpandCollapseButton = CustomMIDI.newElement('button', 'customMidiFilterMidiExpandCollapseButton', 'expand-collapse-button collapsed');
+      this.filterMidiExpandCollapseButton.innerHTML = "+";
+      this.filterMidiExpandCollapseButton.addEventListener('click', (event) => {
+        if (this.filterMidiTableBody.style.display === 'none') {
+          this.filterMidiTableBody.style.display = 'flex';
+          this.filterMidiExpandCollapseButton.innerHTML = "-";
+          this.filterMidiExpandCollapseButton.classList.remove('collapsed');
+          this.filterMidiExpandCollapseButton.classList.add('expanded');
+          // this.titlePanel.classList.remove('title-panel-collapsed');
+          // this.titlePanel.classList.add('title-panel-expanded');
+        } else {
+          this.filterMidiTableBody.style.display = 'none';
+          this.filterMidiExpandCollapseButton.innerHTML = "+";
+          this.filterMidiExpandCollapseButton.classList.remove('expanded');
+          this.filterMidiExpandCollapseButton.classList.add('collapsed');
+          // this.titlePanel.classList.remove('title-panel-expanded');
+          // this.titlePanel.classList.add('title-panel-collapsed');
+        }
+      });
+      this.filterMidiTableHeader.appendChild(this.filterMidiExpandCollapseButton);
 
       // keep a list of observed midi messages
       this.filteredMessages = new Map();
@@ -166,15 +194,21 @@ class CustomMIDI extends HTMLElement {
       }
     }
 
+    // utilities for manipulating midi messages
+    midiMessageSignature(msgByteArray) {
+      return (msgByteArray[0] << 8) + msgByteArray[1];
+    }
+
     addMidiMessageToFilterList(msgByteArray) {
-      if (!this.filteredMessages.has(msgByteArray.slice(0,2))) {
-        this.filteredMessages.set(msgByteArray.slice(0,2), true);
+      const msgSignature = this.midiMessageSignature(msgByteArray);
+      if (!this.filteredMessages.has(msgSignature)) {
+        this.filteredMessages.set(msgSignature, true);
         const msgType = msgByteArray[0] >> 4;
         const msgChannel = msgByteArray[0] - msgType;
         const msgSelector = msgByteArray[1];
 
         const filterMidiPanel = CustomMIDI.newElement('div', 'CustomMidiFilterMidiPanel', 'port-panel horizontal-panel'); 
-        this.filterMidiTable.appendChild(filterMidiPanel);
+        this.filterMidiTableBody.appendChild(filterMidiPanel);
         const filterMidiMsg = CustomMIDI.newElement('div', 'customMidiFilterMidiMsgType', 'port-name');
         if (msgType == 0x9) {
           filterMidiMsg.innerHTML = `Note-On Chan: ${msgChannel} Pitch: ${msgSelector}`;  
@@ -190,15 +224,15 @@ class CustomMIDI extends HTMLElement {
         filterMidiPanel.appendChild(filterMidiToggle);
         filterMidiToggle.addEventListener('click', async (event) => {
           if (filterMidiToggle.classList.contains('toggled-on')) {
-            this.filteredMessages.set(msgByteArray.slice(0,2), 'false');
-            inputPortToggle.classList.remove('toggled-on');
-            inputPortToggle.classList.add('toggled-off');
-            inputPortToggle.innerHTML = 'Disallow';
+            this.filteredMessages.set(msgSignature, false);
+            filterMidiToggle.classList.remove('toggled-on');
+            filterMidiToggle.classList.add('toggled-off');
+            filterMidiToggle.innerHTML = 'Allow';
           } else {
-            this.filteredMessages.set(msgByteArray.slice(0,2), 'true');
-            inputPortToggle.classList.remove('toggled-off');
-            inputPortToggle.classList.add('toggled-on');
-            inputPortToggle.innerHTML = 'Allow';
+            this.filteredMessages.set(msgSignature, true);
+            filterMidiToggle.classList.remove('toggled-off');
+            filterMidiToggle.classList.add('toggled-on');
+            filterMidiToggle.innerHTML = 'Disallow';
           }          
         });
       }        
@@ -217,7 +251,9 @@ class CustomMIDI extends HTMLElement {
     sendNoteOn(pitch, velocity, channel) {
       const noteOnMessage = [0x90 + channel, pitch, velocity];
       this.addMidiMessageToFilterList(noteOnMessage);
-      if (this.filteredMessages.get(noteOnMessage.slice(0,2))) {
+      
+      const noteOnSignature = this.midiMessageSignature(noteOnMessage);      
+      if (this.filteredMessages.get(noteOnSignature)) {
         this.midi.outputs.forEach((outputPort) => {
           if (outputPort.connection == "open") {
             outputPort.send(noteOnMessage);
@@ -229,7 +265,9 @@ class CustomMIDI extends HTMLElement {
     sendNoteOff(pitch, velocity, channel) {
       const noteOffMessage = [0x80 + channel, pitch, velocity];
       this.addMidiMessageToFilterList(noteOffMessage);
-      if (this.filteredMessages.get(noteOffMessage.slice(0,2))) {
+
+      const noteOffSignature = this.midiMessageSignature(noteOffMessage);
+      if (this.filteredMessages.get(noteOffSignature)) {
         this.midi.outputs.forEach((outputPort) => {
           if (outputPort.connection == "open") {
             outputPort.send(noteOffMessage);
@@ -241,7 +279,9 @@ class CustomMIDI extends HTMLElement {
     sendControlChange(controller, value, channel) {
       const controlChangeMessage = [0xB0 + channel, controller, value];
       this.addMidiMessageToFilterList(controlChangeMessage);
-      if (this.filteredMessages.get(controlChangeMessage.slice(0,2))) {
+      
+      const controlChangeSignature = this.midiMessageSignature(controlChangeMessage);
+      if (this.filteredMessages.get(controlChangeSignature)) {
         this.midi.outputs.forEach((outputPort) => {
           if (outputPort.connection == "open") {
             outputPort.send(controlChangeMessage);
