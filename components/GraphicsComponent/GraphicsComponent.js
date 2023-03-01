@@ -76,6 +76,26 @@ class CustomGraphics extends HTMLElement {
 
     this.expandCollapseButton = CustomGraphics.newElement('button', 'customGraphicsExpandCollapseButton', 'expand-collapse-button collapsed');
     this.expandCollapseButton.innerHTML = "+";
+    this.titlePanel.appendChild(this.expandCollapseButton);
+
+    this.mainLabel = CustomGraphics.newElement('div', 'CustomGraphicsMainLabel', 'custom-graphics-label');
+    this.mainLabel.innerHTML = "Graphics";
+    this.titlePanel.appendChild(this.mainLabel);
+
+    // Allow the graphics panel to be fullscreen
+    this.fullscreenButton = CustomGraphics.newElement('button', 'CustomGraphicsFullscreenButton', 'fullscreen-button');
+    this.fullscreenButton.innerHTML = "Fullscreen";
+    this.fullscreenButton.style.display = "none";
+    this.titlePanel.appendChild(this.fullscreenButton);
+    this.fullscreenButton.addEventListener('click', async (event) => {
+      try {
+        let res = await this.canvas.requestFullscreen();
+        console.log(res);
+      } catch(e) {
+        console.error(e);
+      }
+    });
+
     this.expandCollapseButton.addEventListener('click', (event) => {
       if (this.mainPanel.style.visibility !== 'visible') {
         this.mainPanel.style.visibility = 'visible';
@@ -84,6 +104,7 @@ class CustomGraphics extends HTMLElement {
         this.expandCollapseButton.classList.add('expanded');
         this.titlePanel.classList.remove('title-panel-collapsed');
         this.titlePanel.classList.add('title-panel-expanded');
+        this.fullscreenButton.style.display = "inline-block";
       } else {
         this.mainPanel.style.visibility = 'collapse';
         this.expandCollapseButton.innerHTML = "+";
@@ -91,13 +112,9 @@ class CustomGraphics extends HTMLElement {
         this.expandCollapseButton.classList.add('collapsed');
         this.titlePanel.classList.remove('title-panel-expanded');
         this.titlePanel.classList.add('title-panel-collapsed');
+        this.fullscreenButton.style.display = "none";
       }
     });
-    this.titlePanel.appendChild(this.expandCollapseButton);
-
-    this.mainLabel = CustomGraphics.newElement('div', 'CustomGraphicsMainLabel', 'custom-graphics-label');
-    this.mainLabel.innerHTML = "Graphics";
-    this.titlePanel.appendChild(this.mainLabel);
 
     // Create a top level panel, that need not be full width
     this.mainPanel = CustomGraphics.newElement('div', 'customGraphicsMainPanel', 'custom-graphics main-panel vertical-panel');

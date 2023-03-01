@@ -28,6 +28,9 @@
     border-style: none;
 }
 
+.fullscreen-button {
+    margin-left: 10px;
+}
 
 .custom-graphics-canvas {
     border-style: solid;
