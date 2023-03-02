@@ -16,6 +16,26 @@
 // let tatum = (60000 / 16) / tempo;
 // let renderTR;
 
+
+function resizeCanvasToDisplaySize(canvas) {
+  // Lookup the size the browser is displaying the canvas in CSS pixels.
+  const displayWidth  = canvas.clientWidth;
+  const displayHeight = canvas.clientHeight;
+ 
+  // Check if the canvas is not the same size.
+  const needResize = canvas.width  !== displayWidth ||
+                     canvas.height !== displayHeight;
+ 
+  if (needResize) {
+    // Make the canvas the same size
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+  }
+ 
+  return needResize;
+}
+
+
 class CustomGraphics extends HTMLElement {
 
   // A utility function for creating a new html element with given id and class
@@ -30,9 +50,9 @@ class CustomGraphics extends HTMLElement {
     // Always call super first in constructor
     super();
     
-    this.canvasWidth = 800;
-    this.canvasHeight = 600;
-    this.running = false;
+    // this.canvasWidth = 800;
+    // this.canvasHeight = 600;
+    // this.running = false;
 
     this.mouseX = 0;
     this.mouseY = 0;
@@ -117,15 +137,18 @@ class CustomGraphics extends HTMLElement {
     });
 
     // Create a top level panel, that need not be full width
-    this.mainPanel = CustomGraphics.newElement('div', 'customGraphicsMainPanel', 'custom-graphics main-panel vertical-panel');
+    this.mainPanel = CustomGraphics.newElement('div', 'customGraphicsMainPanel', 'custom-graphics graphics-panel vertical-panel');
     this.mainPanel.style.visibility = 'collapse';
     this.mainStrip.appendChild(this.mainPanel);
 
     this.canvas = CustomGraphics.newElement('canvas', 'customGraphicsCanvas', 'custom-graphics-canvas');
-    this.canvas.width = "1200";
-    this.canvas.height = "800";
+    // this.canvas.width = "1200";
+    // this.canvas.height = "800";
     this.mainPanel.appendChild(this.canvas);
-    this.canvas.addEventListener('mousemove', this.setMousePosition.bind(this));
+    this.canvas.addEventListener('mousemove', this.setMousePosition.bind(this));    
+    this.canvas.addEventListener('fullscreenchange',(event) => {
+      console.log(`Canvas is now fullscreen, and drawing buffer is ${this.canvas.width} by ${this.canvas.height}`)
+    });
     this.gl = this.canvas.getContext('webgl2');
 
     // this.controlPanel = CustomGraphics.newElement('div', 'customGraphicsControlPanel', 'vertical custom-graphics-panel');
@@ -565,6 +588,8 @@ class CustomGraphics extends HTMLElement {
 
   // Main drawing routine for the video display
   render( time ) {
+    resizeCanvasToDisplaySize(this.canvas);
+    
     const gl = this.gl;
     time *= 0.001
     const timeDelta = time - this.lastTime;
