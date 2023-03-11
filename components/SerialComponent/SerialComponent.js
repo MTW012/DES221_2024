@@ -9,6 +9,12 @@ class CustomSerial extends HTMLElement {
         return elem;
     }
 
+    // A static function for sanitizing command strings to strip out newlines and carriage returns,
+    // then add a single newline at the end.
+    static sanitizeString(str) {
+      return str.replace(/[\n\r]/g, "") + "\n";
+    }
+
     constructor() {
         // Always call super first in constructor
         super();
@@ -126,8 +132,13 @@ class CustomSerial extends HTMLElement {
         this.sendSerialTextBox.value = 'Hello';
         this.sendSerialSubPanel.appendChild(this.sendSerialTextBox);
 
-        this.sendSerialButton.addEventListener('click', (event) => {
-            this.writeToSerial(this.sendSerialTextBox.value + "\n");
+        this.sendSerialButton.addEventListener('click', (event) => {            
+          this.writeToSerial(CustomSerial.sanitizeString(this.sendSerialTextBox.value));
+        });
+
+        // also allow user to send string by hitting Enter or Return in the text box
+        this.sendSerialTextBox.addEventListener('change', (event) => {
+          this.writeToSerial(CustomSerial.sanitizeString(this.sendSerialTextBox.value));
         });
 
         // Text area for receiving serial data, and button for forwarding to MIDI
@@ -270,7 +281,7 @@ class CustomSerial extends HTMLElement {
     
     
     async readSerialInput() {
-        while (this.connectedPort.readable && this.keepReading) {
+        while (this.connectedPort && this.connectedPort.readable && this.keepReading) {
             this.reader = this.connectedPort.readable.getReader();
             try {
               while (true) {
@@ -282,13 +293,20 @@ class CustomSerial extends HTMLElement {
                 this.serialInputProcessor(value);
               }
             } catch (error) {
-              console.warn(`Error parsing serial input: ${error}`);
+              console.warn(`Error parsing serial input: ${error}. Disconnecting ...`);
+              this.keepReading = false;
+              this.connectedPort = null;
+              this.connectButton.innerHTML = "Connect";
+              this.connectButton.classList.remove('toggled-on');
+              this.connectButton.classList.add('toggled-off');
+            
             } finally {
               this.reader.releaseLock();
             }
         }
-    
-        await this.connectedPort.close();
+        if (this.connectedPort) {
+          await this.connectedPort.close();
+        }
     }
     
     
@@ -305,5 +323,6 @@ class CustomSerial extends HTMLElement {
     }
 
 }
+
 
 customElements.define('custom-serial', CustomSerial);
