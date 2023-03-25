@@ -42,6 +42,10 @@
     align-items: center;
 }
 
+#customSerialLogPanel {    
+    display: var(--log-panel-display, none);
+}
+
 
 .port-toggle {
     min-width: 75px;
