@@ -237,6 +237,43 @@ class CustomSerial extends HTMLElement {
     }
 
     
+    // handler functions for different types of data. These can be overridden in a client application
+    handleMIDI = function(val) {
+        // send MIDI messages to the MIDI component
+        const midi = document.querySelector('custom-midi');
+        if (midi) {
+            const noteOnMatch = val.match(/NoteOn (\d+) (\d+) (\d+)/);
+            if (noteOnMatch && noteOnMatch.length == 4) {
+                midi.sendNoteOn(parseInt(noteOnMatch[1]), parseInt(noteOnMatch[2]), parseInt(noteOnMatch[3]));
+            }
+            const noteOffMatch = val.match(/NoteOff (\d+) (\d+) (\d+)/);
+            if (noteOffMatch && noteOffMatch.length == 4) {
+                midi.sendNoteOff(parseInt(noteOffMatch[1]), parseInt(noteOffMatch[2]), parseInt(noteOffMatch[3]));
+            }
+            const controlChangeMatch = val.match(/ControlChange (\d+) (\d+) (\d+)/);
+            if (controlChangeMatch && controlChangeMatch.length == 4) {
+                midi.sendControlChange(parseInt(controlChangeMatch[1]), parseInt(controlChangeMatch[2]), parseInt(controlChangeMatch[3]));
+            }
+        }
+    }
+
+
+    handleGraphics = function(val) {
+        // send Graphics messages to the Graphics component
+        const graphics = document.querySelector('custom-graphics');
+        if (graphics) {
+            const pitchMatch = val.match(/Pitch ([-]?\d+)/);
+            if (pitchMatch && pitchMatch.length == 2) {
+                graphics.receiveTiltPitch(parseInt(pitchMatch[1]));
+            }
+            const rollMatch = val.match(/Roll ([-]?\d+)/);
+            if (rollMatch && rollMatch.length == 2) {
+                graphics.receiveTiltRoll(parseInt(rollMatch[1]));
+            }
+        }
+    }
+
+
     // Decode tokens as UTF8 strings and log them to the console
     handleToken = function(arr) {
         const stringValue = new TextDecoder().decode(arr);
@@ -253,39 +290,12 @@ class CustomSerial extends HTMLElement {
         }
 
         if (this.receiveMIDI && matchesMIDI) {
-            // send MIDI messages to the MIDI component
-            const midi = document.querySelector('custom-midi');
-            if (midi) {
-                const noteOnMatch = val.match(/NoteOn (\d+) (\d+) (\d+)/);
-                if (noteOnMatch && noteOnMatch.length == 4) {
-                    midi.sendNoteOn(parseInt(noteOnMatch[1]), parseInt(noteOnMatch[2]), parseInt(noteOnMatch[3]));
-                }
-                const noteOffMatch = val.match(/NoteOff (\d+) (\d+) (\d+)/);
-                if (noteOffMatch && noteOffMatch.length == 4) {
-                    midi.sendNoteOff(parseInt(noteOffMatch[1]), parseInt(noteOffMatch[2]), parseInt(noteOffMatch[3]));
-                }
-                const controlChangeMatch = val.match(/ControlChange (\d+) (\d+) (\d+)/);
-                if (controlChangeMatch && controlChangeMatch.length == 4) {
-                    midi.sendControlChange(parseInt(controlChangeMatch[1]), parseInt(controlChangeMatch[2]), parseInt(controlChangeMatch[3]));
-                }
-            }
+            this.handleMIDI(val);
         }
 
         if (this.receiveGraphics && matchesGraphics) {
-            // send Graphics messages to the Graphics component
-            const graphics = document.querySelector('custom-graphics');
-            if (graphics) {
-                const pitchMatch = val.match(/Pitch ([-]?\d+)/);
-                if (pitchMatch && pitchMatch.length == 2) {
-                    graphics.receiveTiltPitch(parseInt(pitchMatch[1]));
-                }
-                const rollMatch = val.match(/Roll ([-]?\d+)/);
-                if (rollMatch && rollMatch.length == 2) {
-                    graphics.receiveTiltRoll(parseInt(rollMatch[1]));
-                }
-            }
+            this.handleGraphics(val);
         }
-
     }
 
 
