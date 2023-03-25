@@ -75,7 +75,7 @@
     text-decoration: none;
     display: inline-block;
     font-size: var(--toggle-button-off-font-size, 16px);
-    border-radius: var(--toggle-button-border-radious, 5%);
+    border-radius: var(--toggle-button-border-radius, 5%);
 }
 
 .serial-send-button {
@@ -145,10 +145,10 @@
 }
 
 .expand-collapse-button {
-    background-color: rgb(72, 39, 163);
+    background-color: var(--expand-button-background-color, rgb(72, 39, 163));
     margin: 10px;
     border: none;
-    color: white;
+    color: var(--expand-button-text-color, white);
     /* padding: 15px 32px; */
     text-align: center;
     text-decoration: none;
