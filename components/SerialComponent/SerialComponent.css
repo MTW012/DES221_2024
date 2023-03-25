@@ -10,23 +10,33 @@
 
 
 #customSerialMainStrip {    
-    /* display: flex;
-    align-items: flex-start; */
     margin-bottom: 10px;
+    font-family: var(--title-panel-font-family, Verdana, Geneva, Tahoma, sans-serif);
+    font-size: var(--title-panel-font-size, 16px);
+    color: var(--title-panel-color, aliceblue);
 }
 
 
 #customSerialMainPanel {    
-    background-color:  rgb(19, 18, 18);
-    color: aliceblue;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color:  var(--main-panel-background-color,rgb(19, 18, 18));
+    color: var(--main-panel-color, aliceblue);
+    font-family: var(--main-panel-font-family, Verdana, Geneva, Tahoma, sans-serif);
     align-items: stretch;
-    margin: 10px;
-    border-style: solid;
-    border-color: rgb(111, 110, 110);
-    padding: 5px;
+    margin: var(--main-panel-margin, 10px);
+    border-style: var(--main-panel-border-style, solid);
+    border-color: var(--main-panel-border-color, rgb(111, 110, 110));
+    padding: var(--main-panel-padding, 5px);
 }
 
+
+/* allows for external override of send and receive panel displays */
+#customSerialSendPanel {
+    display: var(--send-panel-display, flex);
+}
+
+#customSerialReceivePanel {
+    display: var(--receive-panel-display, flex);
+}
 
 #customSerialSendSubPanel {    
     align-items: center;
@@ -40,29 +50,32 @@
 
 
 .toggled-on {
-    margin: 10px;
-    background-color: #2c682e; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
+    margin: var(--toggle-button-margin, 10px);
+    background-color: var(--toggle-button-on-color, rgb(44, 104, 46)); /* Green */
+    border-style: var(--toggle-button-on-border-style, none);
+    border-color: var(--toggle-button-on-border-color, rgb(44, 104, 46));
+    color: var(--toggle-button-on-font-color, white);
+    padding: var(--toggle-button-padding, 15px 32px);
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
-    border-radius: 5%;
+    font-size: var(--toggle-button-on-font-size, 16px);
+    border-radius: var(--toggle-button-border-radius, 5%);
 }
 
+
 .toggled-off {
-    background-color: rgb(111, 27, 27);
-    margin: 10px;
-    border: none;
-    color: white;
-    padding: 15px 32px;
+    background-color: var(--toggle-button-off-color, rgb(111, 27, 27));  /* Red */
+    margin: var(--toggle-button-margin, 10px);
+    border-style: var(--toggle-button-off-border-style, none);
+    border-color: var(--toggle-button-off-border-color, rgb(111, 27, 27));
+    color: var(--toggle-button-off-font-color, white);
+    padding: var(--toggle-button-padding, 15px 32px);
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
-    border-radius: 5%;
+    font-size: var(--toggle-button-off-font-size, 16px);
+    border-radius: var(--toggle-button-border-radius, 5%);
 }
 
 .serial-send-button {
@@ -91,7 +104,7 @@
 
 
 .custom-serial-panel {
-    background-color: rgb(45, 41, 41);
+    background-color: var(--sub-panel-background-color, rgb(45, 41, 41));
     margin: 5px;
     padding: 10px;
     display: flex;
@@ -122,8 +135,8 @@
 
 .title-panel-collapsed {
     align-items: center;
-    border-style: solid;
-    border-color:rgb(118, 28, 28);
+    border-style: var(--title-panel-border-style, solid);
+    border-color:var(--title-panel-border-color, rgb(118, 28, 28));
 }
 
 .title-panel-expanded {
@@ -132,10 +145,10 @@
 }
 
 .expand-collapse-button {
-    background-color: rgb(72, 39, 163);
+    background-color: var(--expand-button-background-color, rgb(72, 39, 163));
     margin: 10px;
     border: none;
-    color: white;
+    color: var(--expand-button-text-color, white);
     /* padding: 15px 32px; */
     text-align: center;
     text-decoration: none;

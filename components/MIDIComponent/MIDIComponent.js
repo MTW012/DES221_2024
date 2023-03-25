@@ -204,7 +204,7 @@ class CustomMIDI extends HTMLElement {
       if (!this.filteredMessages.has(msgSignature)) {
         this.filteredMessages.set(msgSignature, true);
         const msgType = msgByteArray[0] >> 4;
-        const msgChannel = msgByteArray[0] - msgType;
+        const msgChannel = msgByteArray[0] - (msgType << 4);
         const msgSelector = msgByteArray[1];
 
         const filterMidiPanel = CustomMIDI.newElement('div', 'CustomMidiFilterMidiPanel', 'port-panel horizontal-panel'); 
