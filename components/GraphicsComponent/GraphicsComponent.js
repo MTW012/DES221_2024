@@ -1,3 +1,41 @@
+// const arrayOK = (x) => {
+//   return (x && Array.isArray(x) && x.length > 0);
+// }
+
+
+// const removeChildren = (elem) => {
+//   while (elem.childElementCount > 0) {
+//     elem.removeChild(elem.lastChild);
+//   }
+// }
+
+// let globalBeat = 0;
+// let lastWholeBeat = 0;
+// let lastBeatTime = 0;
+// let tempo = 120;
+// let tatum = (60000 / 16) / tempo;
+// let renderTR;
+
+
+function resizeCanvasToDisplaySize(canvas) {
+  // Lookup the size the browser is displaying the canvas in CSS pixels.
+  const displayWidth  = canvas.clientWidth;
+  const displayHeight = canvas.clientHeight;
+ 
+  // Check if the canvas is not the same size.
+  const needResize = canvas.width  !== displayWidth ||
+                     canvas.height !== displayHeight;
+ 
+  if (needResize) {
+    // Make the canvas the same size
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+  }
+ 
+  return needResize;
+}
+
+
 class CustomGraphics extends HTMLElement {
 
   // A utility function for creating a new html element with given id and class
@@ -12,9 +50,9 @@ class CustomGraphics extends HTMLElement {
     // Always call super first in constructor
     super();
     
-    this.canvasWidth = 800;
-    this.canvasHeight = 600;
-    this.running = false;
+    // this.canvasWidth = 800;
+    // this.canvasHeight = 600;
+    // this.running = false;
 
     this.mouseX = 0;
     this.mouseY = 0;
@@ -58,6 +96,26 @@ class CustomGraphics extends HTMLElement {
 
     this.expandCollapseButton = CustomGraphics.newElement('button', 'customGraphicsExpandCollapseButton', 'expand-collapse-button collapsed');
     this.expandCollapseButton.innerHTML = "+";
+    this.titlePanel.appendChild(this.expandCollapseButton);
+
+    this.mainLabel = CustomGraphics.newElement('div', 'CustomGraphicsMainLabel', 'custom-graphics-label');
+    this.mainLabel.innerHTML = "Graphics";
+    this.titlePanel.appendChild(this.mainLabel);
+
+    // Allow the graphics panel to be fullscreen
+    this.fullscreenButton = CustomGraphics.newElement('button', 'CustomGraphicsFullscreenButton', 'fullscreen-button');
+    this.fullscreenButton.innerHTML = "Fullscreen";
+    this.fullscreenButton.style.display = "none";
+    this.titlePanel.appendChild(this.fullscreenButton);
+    this.fullscreenButton.addEventListener('click', async (event) => {
+      try {
+        let res = await this.canvas.requestFullscreen();
+        console.log(res);
+      } catch(e) {
+        console.error(e);
+      }
+    });
+
     this.expandCollapseButton.addEventListener('click', (event) => {
       if (this.mainPanel.style.visibility !== 'visible') {
         this.mainPanel.style.visibility = 'visible';
@@ -66,6 +124,7 @@ class CustomGraphics extends HTMLElement {
         this.expandCollapseButton.classList.add('expanded');
         this.titlePanel.classList.remove('title-panel-collapsed');
         this.titlePanel.classList.add('title-panel-expanded');
+        this.fullscreenButton.style.display = "inline-block";
       } else {
         this.mainPanel.style.visibility = 'collapse';
         this.expandCollapseButton.innerHTML = "+";
@@ -73,24 +132,23 @@ class CustomGraphics extends HTMLElement {
         this.expandCollapseButton.classList.add('collapsed');
         this.titlePanel.classList.remove('title-panel-expanded');
         this.titlePanel.classList.add('title-panel-collapsed');
+        this.fullscreenButton.style.display = "none";
       }
     });
-    this.titlePanel.appendChild(this.expandCollapseButton);
-
-    this.mainLabel = CustomGraphics.newElement('div', 'CustomGraphicsMainLabel', 'custom-graphics-label');
-    this.mainLabel.innerHTML = "Graphics";
-    this.titlePanel.appendChild(this.mainLabel);
 
     // Create a top level panel, that need not be full width
-    this.mainPanel = CustomGraphics.newElement('div', 'customGraphicsMainPanel', 'custom-graphics main-panel vertical-panel');
+    this.mainPanel = CustomGraphics.newElement('div', 'customGraphicsMainPanel', 'custom-graphics graphics-panel vertical-panel');
     this.mainPanel.style.visibility = 'collapse';
     this.mainStrip.appendChild(this.mainPanel);
 
     this.canvas = CustomGraphics.newElement('canvas', 'customGraphicsCanvas', 'custom-graphics-canvas');
-    this.canvas.width = "1200";
-    this.canvas.height = "800";
+    // this.canvas.width = "1200";
+    // this.canvas.height = "800";
     this.mainPanel.appendChild(this.canvas);
-    this.canvas.addEventListener('mousemove', this.setMousePosition.bind(this));
+    this.canvas.addEventListener('mousemove', this.setMousePosition.bind(this));    
+    this.canvas.addEventListener('fullscreenchange',(event) => {
+      console.log(`Canvas is now fullscreen, and drawing buffer is ${this.canvas.width} by ${this.canvas.height}`)
+    });
     this.gl = this.canvas.getContext('webgl2');
 
     // this.controlPanel = CustomGraphics.newElement('div', 'customGraphicsControlPanel', 'vertical custom-graphics-panel');
@@ -355,9 +413,8 @@ class CustomGraphics extends HTMLElement {
     `;
 
     this.setShaderToySource(shaderToySource);
-
   }
-  
+
   // mouse tracking in the graphics canvas
   setMousePosition(e) {
     const rect = this.canvas.getBoundingClientRect();
@@ -531,6 +588,8 @@ class CustomGraphics extends HTMLElement {
 
   // Main drawing routine for the video display
   render( time ) {
+    resizeCanvasToDisplaySize(this.canvas);
+    
     const gl = this.gl;
     time *= 0.001
     const timeDelta = time - this.lastTime;

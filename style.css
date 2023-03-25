@@ -1,18 +1,8 @@
-/* 
-these are some simple examples styles you could apply to the body element 
-and button elements
-*/
-
-
-/* 
 body {
     background-color: black;
-    color: white;
+    color: aliceblue;
 }
-*/
 
-
-/* 
 button {
     background-color: rgb(81, 46, 187);
     margin: 10px;
@@ -25,4 +15,3 @@ button {
     font-size: 16px;
     border-radius: 5%;
 }
-*/

@@ -47,19 +47,19 @@ class CustomSerial extends HTMLElement {
         this.expandCollapseButton.innerHTML = "+";
         this.expandCollapseButton.addEventListener('click', (event) => {
             if (this.mainPanel.style.display === 'none') {
-            this.mainPanel.style.display = 'flex';
-            this.expandCollapseButton.innerHTML = "-";
-            this.expandCollapseButton.classList.remove('collapsed');
-            this.expandCollapseButton.classList.add('expanded');
-            this.titlePanel.classList.remove('title-panel-collapsed');
-            this.titlePanel.classList.add('title-panel-expanded');
+                this.mainPanel.style.display = 'flex';
+                this.expandCollapseButton.innerHTML = "-";
+                this.expandCollapseButton.classList.remove('collapsed');
+                this.expandCollapseButton.classList.add('expanded');
+                this.titlePanel.classList.remove('title-panel-collapsed');
+                this.titlePanel.classList.add('title-panel-expanded');
             } else {
-            this.mainPanel.style.display = 'none';
-            this.expandCollapseButton.innerHTML = "+";
-            this.expandCollapseButton.classList.remove('expanded');
-            this.expandCollapseButton.classList.add('collapsed');
-            this.titlePanel.classList.remove('title-panel-expanded');
-            this.titlePanel.classList.add('title-panel-collapsed');
+                this.mainPanel.style.display = 'none';
+                this.expandCollapseButton.innerHTML = "+";
+                this.expandCollapseButton.classList.remove('expanded');
+                this.expandCollapseButton.classList.add('collapsed');
+                this.titlePanel.classList.remove('title-panel-expanded');
+                this.titlePanel.classList.add('title-panel-collapsed');
             }
         });
         this.titlePanel.appendChild(this.expandCollapseButton);
@@ -75,11 +75,19 @@ class CustomSerial extends HTMLElement {
         this.mainStrip.appendChild(this.mainPanel);
 
         // Toggle button to connect/disconnect to attached devices
-        this.connectionPanel = CustomSerial.newElement('div', 'customSerialConnectionPanel', 'vertical-panel custom-serial-panel');
+        this.connectionPanel = CustomSerial.newElement('div', 'customSerialConnectionPanel', 'horizontal-panel custom-serial-panel');
         this.mainPanel.appendChild(this.connectionPanel);
         this.connectButton = CustomSerial.newElement('button', 'customSerialConnectButton', 'port-toggle toggled-off');
         this.connectButton.innerHTML = "Connect";
         this.connectionPanel.appendChild(this.connectButton);
+        
+        this.connectBaudRate = CustomSerial.newElement('select', 'customSerialBaudRateSelect', 'custom-serial-select');
+        this.connectBaudRate.innerHTML = `
+        <option value="115200">115200</option>
+        <option value="31250">31250</option>
+        <option value="9600" selected="true">9600</option>
+        `;
+        this.connectionPanel.appendChild(this.connectBaudRate);
         this.connectButton.addEventListener('click', async () => {
             if (!this.connectedPort) { 
                 // look for an attached microbit
@@ -88,13 +96,18 @@ class CustomSerial extends HTMLElement {
                     this.connectedPort = await navigator.serial.requestPort({ filters: [{ usbVendorId }]});
                     
                     // Connect to port
-                    await this.connectedPort.open({ baudRate: 115200 });
-                    this.connectButton.innerHTML = "Disconnect";
-                    this.connectButton.classList.remove('toggled-off');
-                    this.connectButton.classList.add('toggled-on');
+                    const baud = parseInt(this.connectBaudRate.value);
+                    if (!baud) {
+                        console.warn(`Invalid baud rate ${this.connectBaudRate.value}`);
+                    } else {
+                        await this.connectedPort.open({ baudRate: baud });
+                        this.connectButton.innerHTML = "Disconnect";
+                        this.connectButton.classList.remove('toggled-off');
+                        this.connectButton.classList.add('toggled-on');
                     
-                    this.keepReading = true;
-                    this.finishedReadingPromise = this.readSerialInput();
+                        this.keepReading = true;
+                        this.finishedReadingPromise = this.readSerialInput();
+                    }
                     
                 } catch(e) {
                     console.warn(`Couldn't find any microbits: ${e}`);
@@ -132,13 +145,39 @@ class CustomSerial extends HTMLElement {
         this.sendSerialTextBox.value = 'Hello';
         this.sendSerialSubPanel.appendChild(this.sendSerialTextBox);
 
-        this.sendSerialButton.addEventListener('click', (event) => {            
-          this.writeToSerial(CustomSerial.sanitizeString(this.sendSerialTextBox.value));
+        this.sendSerialButton.addEventListener('click', (event) => {
+            this.writeToSerial(this.sendSerialTextBox.value + "\n");
         });
 
-        // also allow user to send string by hitting Enter or Return in the text box
-        this.sendSerialTextBox.addEventListener('change', (event) => {
-          this.writeToSerial(CustomSerial.sanitizeString(this.sendSerialTextBox.value));
+        this.logPanel = CustomSerial.newElement('div', 'customSerialLogPanel', 'vertical-panel custom-serial-panel');
+        this.mainPanel.appendChild(this.logPanel);
+        this.logButton = CustomSerial.newElement('button', 'customSerialLogButton', 'port-toggle toggled-off');
+        this.logButton.innerHTML = "Log";
+        this.logPanel.appendChild(this.logButton);
+
+        this.logFile = null;
+        this.logFileWriter = null;
+        this.logButton.addEventListener('click', async () => {
+            if (!this.logFile) { 
+                this.logFile = await window.showSaveFilePicker();
+                if (this.logFile) {
+                    try {
+                        this.logFileWriter = await this.logFile.createWritable();
+                    } catch(e) {
+                        console.warn(`Could not write to file ${this.logFile}: ${e}`);
+                    } 
+                    this.logButton.classList.remove('toggled-off');
+                    this.logButton.classList.add('toggled-on');
+                }
+            } else {
+                if (this.logFileWriter) {
+                    this.logFileWriter.close();
+                }
+                this.logFile = null;
+                this.logFileWriter = null;
+                this.logButton.classList.remove('toggled-on');
+                this.logButton.classList.add('toggled-off');                    
+            }
         });
 
         // Text area for receiving serial data, and button for forwarding to MIDI
@@ -259,7 +298,7 @@ class CustomSerial extends HTMLElement {
     
   
     serialInputProcessor(arr) {
-        if (arr && arr.length) {
+        if (arr && arr.length) {            
             let ind = arr.indexOf(this.delimiterChar);
             if (ind >= 0) {
                 if (ind > 0) {
@@ -281,7 +320,7 @@ class CustomSerial extends HTMLElement {
     
     
     async readSerialInput() {
-        while (this.connectedPort && this.connectedPort.readable && this.keepReading) {
+        while (this.connectedPort.readable && this.keepReading) {
             this.reader = this.connectedPort.readable.getReader();
             try {
               while (true) {
@@ -290,23 +329,20 @@ class CustomSerial extends HTMLElement {
                   // reader has been canceled.
                   break;
                 }
+                if (this.logFileWriter) {
+                    const stringValue = new TextDecoder().decode(value);
+                    this.logFileWriter.write(stringValue);
+                }        
                 this.serialInputProcessor(value);
               }
             } catch (error) {
-              console.warn(`Error parsing serial input: ${error}. Disconnecting ...`);
-              this.keepReading = false;
-              this.connectedPort = null;
-              this.connectButton.innerHTML = "Connect";
-              this.connectButton.classList.remove('toggled-on');
-              this.connectButton.classList.add('toggled-off');
-            
+              console.warn(`Error parsing serial input: ${error}`);
             } finally {
               this.reader.releaseLock();
             }
         }
-        if (this.connectedPort) {
-          await this.connectedPort.close();
-        }
+    
+        await this.connectedPort.close();
     }
     
     
@@ -323,6 +359,5 @@ class CustomSerial extends HTMLElement {
     }
 
 }
-
 
 customElements.define('custom-serial', CustomSerial);

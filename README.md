@@ -1,4 +1,4 @@
-# DES221 2023
+# DES307 2023
 
 A collection of web components for communicating between microprocessors and software.
 
@@ -49,6 +49,8 @@ into the corresponding actual MIDI message to send via the MIDI Component. Note 
 If you are working on a Mac computer, there is a built in virtual MIDI device called the IAC Driver (which stands for Inter-Application-Communication).  If this is enabled, it allows sending MIDI directly between software programs on your computer, without needing any hardware MIDI devices. So for example, we can send MIDI messages from the Serial Component to a software audio program like Ableton Live or Reaper. You can enable the IAC Driver by opening the program "Audio MIDI Setup" which is included with every mac (search for it with spotlight - it should be in /Applications/Utilities). In the main menu select Window | Show MIDI Studio. Double click on the IAC Driver icon, and then select the checkbox "Device is online".
 
 If you are working on a Windows computer, you will need a separate utility program for virtually routing MIDI between software applications. For example loopMIDI http://www.tobias-erichsen.de/software/loopmidi.html
+
+There is a mechanism for filtering out particular MIDI messages. If you click on the +/- button next to the words "Restrict to messages starting with " then a list of MIDI messages that have been received from the serial port popup.  You can Allow/Disallow particular kinds of messages. This is most helpful for mapping MIDI in software that has a MIDI learn functionality, where you need to be able to 'move' just one controller at a time.
 
 ## Graphics Component
 The graphics component is a simple example of passing messages from the microprocessor to a graphics program. This is a port of the popular shadertoy site. The Serial Component converts the messages
