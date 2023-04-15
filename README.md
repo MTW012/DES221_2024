@@ -48,7 +48,7 @@ into the corresponding actual MIDI message to send via the MIDI Component. Note 
 
 If you are working on a Mac computer, there is a built in virtual MIDI device called the IAC Driver (which stands for Inter-Application-Communication).  If this is enabled, it allows sending MIDI directly between software programs on your computer, without needing any hardware MIDI devices. So for example, we can send MIDI messages from the Serial Component to a software audio program like Ableton Live or Reaper. You can enable the IAC Driver by opening the program "Audio MIDI Setup" which is included with every mac (search for it with spotlight - it should be in /Applications/Utilities). In the main menu select Window | Show MIDI Studio. Double click on the IAC Driver icon, and then select the checkbox "Device is online".
 
-If you are working on a Windows computer, you will need a separate utility program for virtually routing MIDI between software applications. For example loopMIDI http://www.tobias-erichsen.de/software/loopmidi.html
+If you are working on a Windows computer, you will need a separate utility program for virtually routing MIDI between software applications. For example loopMIDI http://www.tobias-erichsen.de/software/loopmidi.html. For Windows 11 try LoopBe1 https://www.nerds.de/en/loopbe1.html.
 
 There is a mechanism for filtering out particular MIDI messages. If you click on the +/- button next to the words "Restrict to messages starting with " then a list of MIDI messages that have been received from the serial port popup.  You can Allow/Disallow particular kinds of messages. This is most helpful for mapping MIDI in software that has a MIDI learn functionality, where you need to be able to 'move' just one controller at a time.
 
@@ -58,6 +58,12 @@ The graphics component is a simple example of passing messages from the micropro
 - Graphics Pitch *y*
 
 into mouseX and mouseY events for the graphics canvas. Here *x* and *y* are numbers representing the roll or pitch of a tilt sensor, measured in degrees from -180 to 180. In both cases 0 degrees corresponds to a mouse coordinate in the center of the canvas, and +/-180 degrees is the far right/left or top/bottom of the canvas.
+
+It also converts the messages
+- Graphics Knob 0 *x*
+- Graphics Knob 1 *y*
+
+into mouseX and mouseY events respectively (mapping 0-1023 to the full extent of the screen in either direction). Currently it ignores Graphics Knob messages with a knob number greater than 1.
 
 The canvas itself plays back graphics programs created for shadertoy https://www.shadertoy.com.
 
@@ -74,3 +80,5 @@ and putting any event handlers etc. in the index.js file where it says
 ```
 
 You can include or exclude any of the three included components as you like, and you can style the page however you like by editing style.css, and also the component style sheets for example components/SerialComponent/SerialComponent.css
+
+*Advanced: You can override the default behaviour of handleMIDI and handleGraphics by redefining them in your client application. Just obtain a reference to the custom-serial element, and redefine these functions on this object.*
