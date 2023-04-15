@@ -1,4 +1,6 @@
-//from https://www.shadertoy.com/view/4lcGWf
+// adapted by Toby Gifford
+// from https://www.shadertoy.com/view/ddGSRd
+// to include mouse reaction
 
 const float PI = 3.14159265359;
 const vec2 CA = vec2(-0.200,-0.380);

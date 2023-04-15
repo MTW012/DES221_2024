@@ -270,6 +270,17 @@ class CustomSerial extends HTMLElement {
             if (rollMatch && rollMatch.length == 2) {
                 graphics.receiveTiltRoll(parseInt(rollMatch[1]));
             }
+            const knobMatch = val.match(/Knob (\d+) (\d+)/);
+            if (knobMatch && knobMatch.length == 3) {
+                const knobNum = parseInt(knobMatch[1]);
+                const knobVal = parseInt(knobMatch[2]);
+                if (knobNum == 0) {
+                    graphics.receiveKnob0(knobVal);
+                }
+                if (knobNum == 1) {
+                    graphics.receiveKnob1(knobVal);
+                }
+            }
         }
     }
 
