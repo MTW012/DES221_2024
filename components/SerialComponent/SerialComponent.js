@@ -78,7 +78,7 @@ class CustomSerial extends HTMLElement {
         this.connectionPanel = CustomSerial.newElement('div', 'customSerialConnectionPanel', 'horizontal-panel custom-serial-panel');
         this.mainPanel.appendChild(this.connectionPanel);
         this.connectButton = CustomSerial.newElement('button', 'customSerialConnectButton', 'port-toggle toggled-off');
-        this.connectButton.innerHTML = "Connect";
+        this.connectButton.innerHTML = "USB";
         this.connectionPanel.appendChild(this.connectButton);
         
         this.connectBaudRate = CustomSerial.newElement('select', 'customSerialBaudRateSelect', 'custom-serial-select');
@@ -94,6 +94,7 @@ class CustomSerial extends HTMLElement {
                 const usbVendorId = 0x0d28; // BBC Micro:bit
                 try {
                     this.connectedPort = await navigator.serial.requestPort({ filters: [{ usbVendorId }]});
+                    //this.connectedPort = await navigator.serial.requestPort();
                     
                     // Connect to port
                     const baud = parseInt(this.connectBaudRate.value);
@@ -104,7 +105,7 @@ class CustomSerial extends HTMLElement {
                         this.connectButton.innerHTML = "Disconnect";
                         this.connectButton.classList.remove('toggled-off');
                         this.connectButton.classList.add('toggled-on');
-                    
+                        this.btConnectButton.classList.add('disabled');
                         this.keepReading = true;
                         this.finishedReadingPromise = this.readSerialInput();
                     }
@@ -115,20 +116,111 @@ class CustomSerial extends HTMLElement {
             } else {
                 // disconnect
                 try {
+                    this.btConnectButton.classList.remove('disabled');
                     this.keepReading = false;
                     this.reader.cancel();
                     await this.finishedReadingPromise;
                     this.connectedPort = null;
-                    this.connectButton.innerHTML = "Connect";
+                    this.connectButton.innerHTML = "USB";
                     this.connectButton.classList.remove('toggled-on');
                     this.connectButton.classList.add('toggled-off');
-                    
                 } catch (e) {
                     console.warn(`Error disconnecting from microbit: ${e}`);
                 }
             }
         });
 
+        // ---------- Bluetooth connection ----------- //
+        
+        // Toggle button to connect/disconnect to paired devices
+        this.btConnectionPanel = CustomSerial.newElement('div', 'customSerialBTConnectionPanel', 'horizontal-panel custom-serial-panel');
+        this.mainPanel.appendChild(this.btConnectionPanel);
+        this.btConnectButton = CustomSerial.newElement('button', 'customSerialBTConnectButton', 'port-toggle toggled-off');
+        this.btConnectButton.innerHTML = "Bluetooth";
+        this.btConnectionPanel.appendChild(this.btConnectButton);
+        
+        // bluetooth constants
+        const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+
+        // Allows the micro:bit to transmit a byte array
+        const UART_TX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+
+        // Allows a connected client to send a byte array
+        const UART_RX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+        this.btConnectButton.addEventListener('click', async () => {
+        
+            if (!this.uBitBTDevice) {
+                try {
+                    console.log("Requesting Bluetooth Device...");
+                    this.uBitBTDevice = await navigator.bluetooth.requestDevice({
+                        filters: [{ namePrefix: "BBC micro:bit" }],
+                        optionalServices: [UART_SERVICE_UUID]
+                    });
+                
+                    console.log("Connecting to GATT Server...");
+                    const server = await this.uBitBTDevice.gatt.connect();
+                
+                    console.log("Getting Service...");
+                    const service = await server.getPrimaryService(UART_SERVICE_UUID);
+                
+                    console.log("Getting Characteristics...");
+                    const txCharacteristic = await service.getCharacteristic(
+                        UART_TX_CHARACTERISTIC_UUID
+                    );
+                    txCharacteristic.startNotifications();
+                    txCharacteristic.addEventListener(
+                        "characteristicvaluechanged",
+                        this.onTxCharacteristicValueChanged.bind(this)
+                    );
+                    this.rxCharacteristic = await service.getCharacteristic(
+                        UART_RX_CHARACTERISTIC_UUID
+                    );
+                    
+                    // Successfully connected to Bluetooth, so change status of button
+                    this.btConnectButton.innerHTML = "Disconnect";
+                    this.btConnectButton.classList.remove('toggled-off');
+                    this.btConnectButton.classList.add('toggled-on');
+                    this.connectionPanel.setAttribute('style', 'display: none;');
+
+                } catch (error) {
+                    this.uBitBTDevice = null;
+                    this.rxCharacteristic = null;
+                    console.log(error);
+                }
+            } else {
+                try {
+                    this.connectionPanel.setAttribute('style', 'display: flex;');
+                    this.disconnectBluetooth();
+                    this.uBitBTDevice = null;
+                    this.rxCharacteristic = null;
+                    this.btConnectButton.innerHTML = "Bluetooth";
+                    this.btConnectButton.classList.remove('toggled-on');
+                    this.btConnectButton.classList.add('toggled-off');
+                    
+                } catch (e) {
+                    console.warn(`Error disconnecting from bluetooth: ${e}`);
+                } 
+            }
+        });
+        
+        // For testing sending data over bluetooth
+        // this.btPingButton = CustomSerial.newElement('button', 'customSerialBTPingButton', 'momentary');
+        // this.btPingButton.innerHTML = "Ping";
+        // this.btConnectionPanel.appendChild(this.btPingButton);
+        //
+        // this.btPingButton.addEventListener('click', async (event) => {
+        //     if (!this.rxCharacteristic) { return; }
+      
+        //     try {
+        //         let encoder = new TextEncoder();
+        //         this.rxCharacteristic.writeValue(encoder.encode("Ping\n"));
+        //     } catch (error) {
+        //         console.log(error);
+        //     }
+        // });
+
+        
         // button and text box for sending arbitrary strings to the attached device
         this.sendPanel = CustomSerial.newElement('div', 'customSerialSendPanel', 'vertical-panel custom-serial-panel');
         this.mainPanel.appendChild(this.sendPanel);
@@ -146,7 +238,18 @@ class CustomSerial extends HTMLElement {
         this.sendSerialSubPanel.appendChild(this.sendSerialTextBox);
 
         this.sendSerialButton.addEventListener('click', (event) => {
-            this.writeToSerial(this.sendSerialTextBox.value + "\n");
+            if (this.connectedPort) {
+                this.writeToSerial(this.sendSerialTextBox.value + "\n");
+            }
+
+            if (this.uBitBTDevice && this.rxCharacteristic) {
+                try {
+                    let encoder = new TextEncoder();
+                    this.rxCharacteristic.writeValue(encoder.encode(this.sendSerialTextBox.value + "\n"));
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         });
 
         this.logPanel = CustomSerial.newElement('div', 'customSerialLogPanel', 'vertical-panel custom-serial-panel');
@@ -237,6 +340,31 @@ class CustomSerial extends HTMLElement {
     }
 
     
+    // Bluetooth functions
+    disconnectBluetooth() {
+        if (!this.uBitBTDevice) { return; }
+      
+        if (this.uBitBTDevice.gatt.connected) {
+          this.uBitBTDevice.gatt.disconnect();
+          console.log("Disconnected from Bluetooth");
+        }
+    }
+            
+    onTxCharacteristicValueChanged(event) {
+        let receivedData = [];
+        for (var i = 0; i < event.target.value.byteLength; i++) {
+            receivedData[i] = event.target.value.getUint8(i);
+        }
+    
+        const receivedString = String.fromCharCode.apply(null, receivedData);
+        // console.log(receivedString);
+        // if (receivedString === "S") {
+        //     console.log("Shaken!");
+        // }
+        const val = receivedString.trim();
+        this.dispatchMessage(val);
+    }
+    
     // handler functions for different types of data. These can be overridden in a client application
     handleMIDI = function(val) {
         // send MIDI messages to the MIDI component
@@ -285,11 +413,15 @@ class CustomSerial extends HTMLElement {
     }
 
 
-    // Decode tokens as UTF8 strings and log them to the console
+    // Decode tokens as UTF8 strings and forward to message dispatcher
     handleToken = function(arr) {
         const stringValue = new TextDecoder().decode(arr);
-        // console.log(stringValue.trim());
         const val = stringValue.trim();
+        this.dispatchMessage(val);
+    }
+
+
+    dispatchMessage = function(val) {
         const matchesMIDI = val.match(/^MIDI/);
         const matchesGraphics = val.match(/^Graphics/);
         const matchesOther = !(matchesMIDI || matchesGraphics);
