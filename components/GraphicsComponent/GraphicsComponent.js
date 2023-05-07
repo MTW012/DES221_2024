@@ -1,23 +1,3 @@
-
-function resizeCanvasToDisplaySize(canvas) {
-  // Lookup the size the browser is displaying the canvas in CSS pixels.
-  const displayWidth  = canvas.clientWidth;
-  const displayHeight = canvas.clientHeight;
- 
-  // Check if the canvas is not the same size.
-  const needResize = canvas.width  !== displayWidth ||
-                     canvas.height !== displayHeight;
- 
-  if (needResize) {
-    // Make the canvas the same size
-    canvas.width  = displayWidth;
-    canvas.height = displayHeight;
-  }
- 
-  return needResize;
-}
-
-
 class CustomGraphics extends HTMLElement {
 
   // A utility function for creating a new html element with given id and class
@@ -34,8 +14,11 @@ class CustomGraphics extends HTMLElement {
     
     this.mouseX = 0;
     this.mouseY = 0;
+    this.mouseLeftDown = 0;
+    this.mouseRightDown = 0;
     this.lastTime = performance.now() / 1000;
     this.frame = 0;
+    this.triggerClear = true;
     
     // get access to the DOM tree for this element
     const shadow = this.attachShadow({mode: 'open'});
@@ -121,7 +104,11 @@ class CustomGraphics extends HTMLElement {
 
     this.canvas = CustomGraphics.newElement('canvas', 'customGraphicsCanvas', 'custom-graphics-canvas');
     this.mainPanel.appendChild(this.canvas);
-    this.canvas.addEventListener('mousemove', this.setMousePosition.bind(this));    
+    this.canvas.addEventListener('mousemove', this.setMousePosition.bind(this));
+    this.canvas.addEventListener('mousedown', this.setMouseDown.bind(this));
+    this.canvas.addEventListener('mouseup', this.setMouseUp.bind(this));
+    this.canvas.addEventListener('mouseenter', this.onMouseEnter.bind(this));
+
     this.canvas.addEventListener('fullscreenchange',(event) => {
       console.log(`Canvas is now fullscreen, and drawing buffer is ${this.canvas.width} by ${this.canvas.height}`)
     });
@@ -149,6 +136,17 @@ class CustomGraphics extends HTMLElement {
         this.canvasPlayButton.classList.remove('toggled-on');
         this.canvasPlayButton.classList.add('toggled-off');
       }
+    });
+
+    this.canvasClearButton = CustomGraphics.newElement('button', 'customGraphicsCanvasClear', 'clear-button');
+    this.canvasControls.appendChild(this.canvasClearButton);
+    this.canvasClearButton.innerHTML = "Clear";
+    this.canvasClearButton.addEventListener('click', (event) => {
+      this.mouseX = 0;
+      this.mouseY = 0;
+      this.mouseDownLeft = 0;
+      this.mouseDownRight = 0;
+      this.triggerClear = true;
     });
 
     this.copyCodeButton = CustomGraphics.newElement('button', 'customGraphicsCopyButton', 'copy-button');
@@ -214,7 +212,7 @@ class CustomGraphics extends HTMLElement {
     }
     `;
 
-    // Fragment shader program for spectrogram
+    // Fragment shader program
     this.fsPrefix = `# version 300 es
     precision highp float;
     in highp vec2 vTextureCoord;
@@ -345,14 +343,49 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     `;
 
     this.setShaderToySource(shaderToySource);
+  
+  
+    // Fragment shader for second pass (re-render from offscreen buffer to screen quad)
+    this.secondPassFS = `# version 300 es
+    precision highp float;
+    in highp vec2 vTextureCoord;
+    uniform sampler2D sTexture;
+
+    out vec4 fragColor;
+    void main() {
+      fragColor = texture(sTexture, vTextureCoord);
+    }
+    `
+  
+    this.setShaderToySecondPassSource();
+
   }
 
-  // mouse tracking in the graphics canvas
+  // mouse tracking in the graphics canvas - only if the left mouse button is down
   setMousePosition(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    this.mouseX = e.clientX - rect.left;
-    this.mouseY = rect.height - (e.clientY - rect.top) - 1;  // bottom is 0 in WebGL
-    // console.log(`Mouse: ${this.mouseX} ${this.mouseY}`);
+    if (this.mouseLeftDown) {
+      const rect = this.canvas.getBoundingClientRect();
+      this.mouseX = e.clientX - rect.left;
+      this.mouseY = rect.height - (e.clientY - rect.top) - 1;  // bottom is 0 in WebGL
+    }
+  }
+
+  setMouseDown(e) {
+    if (e.button == 0) { 
+      this.mouseLeftDown = 1; 
+      this.setMousePosition(e);
+    }
+    if (e.button == 2) { this.mouseRightDown = 1; }    
+  }
+
+  setMouseUp(e) {
+    if (e.button == 0) { this.mouseLeftDown = 0; }
+    if (e.button == 2) { this.mouseRightDown = 0; }    
+  }
+
+  onMouseEnter(e) {
+    if (e.buttons == 1) { this.mouseLeftDown = 1; } else { this.mouseLeftDown = 0; }
+    if (e.buttons == 2) { this.mouseRightDown = 1; } else { this.mouseRightDown = 0; }
   }
 
   // convert tilt values into mouseX mouseY
@@ -422,6 +455,53 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     }; 
   }
 
+
+  setShaderToySecondPassSource() {
+    this.secondPassShaderProgram = this.initShaderProgram(this.gl, this.vsSource, this.secondPassFS);
+    
+    this.secondPassProgramInfo = {
+      program: this.secondPassShaderProgram,
+      attribLocations: {
+        vertexPosition: this.gl.getAttribLocation(this.secondPassShaderProgram, 'aVertexPosition'),
+        textureCoord: this.gl.getAttribLocation(this.secondPassShaderProgram, 'aTextureCoord'),
+      },
+      uniformLocations: {
+        projectionMatrix: this.gl.getUniformLocation(this.secondPassShaderProgram, 'uProjectionMatrix'),
+        modelViewMatrix: this.gl.getUniformLocation(this.secondPassShaderProgram, 'uModelViewMatrix'),
+        backingTexture: this.gl.getUniformLocation(this.secondPassShaderProgram, 'uTexture'),
+      },
+    }; 
+  }
+
+  
+  initialiseBackingBuffer(gl, width, height) {
+      // We will render in two passes. First pass renders to an offscreen buffer
+      this.backingBuffer = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.backingBuffer);    
+      this.backingTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, this.backingTexture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      // gl.bindTexture(gl.TEXTURE_2D, null);
+  
+      // attach it to currently bound framebuffer object
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.backingTexture, 0);
+  
+      // create a renderbuffer object for the depth and stencil testing for our backing buffer
+      this.backingDepthAndStencilBuffer = gl.createRenderbuffer();
+      gl.bindRenderbuffer(gl.RENDERBUFFER, this.backingDepthAndStencilBuffer); 
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH24_STENCIL8, width, height);  
+      // gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+  
+      if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
+        console.log("Framebuffer is not complete");
+      }
+      // rebind the default framebuffer (ie the canvas output)
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  
+  
   initCanvasBuffers(gl) {
 
     // Create a buffer for the square's positions.
@@ -450,10 +530,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
   
     const textureCoordinates = [
       // Front
-      0.0,  1.0,
-      1.0,  1.0,
-      1.0,  0.0,
       0.0,  0.0,
+      1.0,  0.0,
+      1.0,  1.0,
+      0.0,  1.0,
     ];
   
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
@@ -472,10 +552,13 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
   
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
   
+    // setup backing buffer for offscreen rendering
+    this.initialiseBackingBuffer(gl, gl.canvas.width, gl.canvas.height);
+
     return {
       position: positionBuffer,
       textureCoord: textureCoordBuffer,
-      indices: indexBuffer,
+      indices: indexBuffer
     };
   }
   
@@ -535,9 +618,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
   // Main drawing routine for the video display
   render( time ) {
-    resizeCanvasToDisplaySize(this.canvas);
-    
     const gl = this.gl;
+    this.resizeCanvasToDisplaySize(this.canvas, gl);
+  
     time *= 0.001
     const timeDelta = time - this.lastTime;
     this.lastTime = time;
@@ -619,7 +702,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // Tell WebGL which indices to use to index the vertices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers.indices);
 
-    // Tell WebGL to use our program when drawing
+    // ---- First pass - render into offscreen buffer ---- //
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.backingBuffer);
     gl.useProgram(this.programInfo.program);
 
     // Set the shader uniforms
@@ -648,8 +732,46 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     gl.uniform1f(this.programInfo.uniformLocations.timeDelta, timeDelta);
     gl.uniform1i(this.programInfo.uniformLocations.frame, this.frame);
     gl.uniform1f(this.programInfo.uniformLocations.frame, frameRate);
-    gl.uniform4f(this.programInfo.uniformLocations.mouse, this.mouseX, this.mouseY, this.mouseX, this.mouseY);
+    gl.uniform4f(this.programInfo.uniformLocations.mouse, this.mouseX, this.mouseY, this.mouseLeftDown, this.mouseRightDown);
     gl.uniform4f(this.programInfo.uniformLocations.date, today.getFullYear(), today.getMonth(), today.getDay(), today.getSeconds());
+
+    if (this.triggerClear) {
+      this.triggerClear = false;
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+      gl.clearDepth(1.0);                 // Clear everything
+      gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+      gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
+
+    
+    { // process the textures into the quad
+      const type = gl.UNSIGNED_SHORT;
+      const offset = 0;
+      const vertexCount = 6;
+      gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+    }
+
+
+    // second pass -- render from the backingTexture to the screen
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(this.secondPassProgramInfo.program);
+
+    // Set the shader uniforms
+    gl.uniformMatrix4fv(
+      this.secondPassProgramInfo.uniformLocations.projectionMatrix,
+      false,
+      projectionMatrix);
+
+    gl.uniformMatrix4fv(
+      this.secondPassProgramInfo.uniformLocations.modelViewMatrix,
+      false,
+      modelViewMatrix);
+
+    // Specify the texture to map onto the canvas.
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.backingTexture);
+    gl.uniform1i(this.secondPassProgramInfo.uniformLocations.backingTexture, 0);
 
     { // process the textures into the quad
       const type = gl.UNSIGNED_SHORT;
@@ -657,6 +779,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
       const vertexCount = 6;
       gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
+
 
     if (this.running) { 
       requestAnimationFrame(this.render.bind(this));
@@ -704,6 +827,27 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     return shaderProgram;
   }
 
+  
+  resizeCanvasToDisplaySize(canvas, gl) {
+    // Lookup the size the browser is displaying the canvas in CSS pixels.
+    const displayWidth  = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
+   
+    // Check if the canvas is not the same size.
+    const needResize = canvas.width  !== displayWidth ||
+                       canvas.height !== displayHeight;
+   
+    if (needResize) {
+      // Make the canvas the same size
+      canvas.width  = displayWidth;
+      canvas.height = displayHeight;
+    
+      this.initialiseBackingBuffer(gl, displayWidth, displayHeight);
+    }
+   
+    return needResize;
+  }
+  
 }
 
 
