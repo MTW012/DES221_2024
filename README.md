@@ -20,7 +20,9 @@ The Serial Compoment allows communication to and from a microprocessor like a **
 ```
 Expand or collapse the component by clicking on the +/- button
 
-If the microprocessor is plugged into your computer via USB, you should be able to connect to it by pressing the 'Connect' button. NOTE: you will need to disconnect the microprocessor from any other page first. For example if you have connected a Micro:bit to the MakeCode editor you will need to disconnect it first.
+If the microprocessor is plugged into your computer via USB, you should be able to connect to it by pressing the 'USB' button. NOTE: you will need to disconnect the microprocessor from any other page first. For example if you have connected a Micro:bit to the MakeCode editor you will need to disconnect it first.
+
+Alternatively, you may be able to connect via Bluetooth by pressing the 'Bluetooth' button. For this to work you will need to have already paired the microprocessor with your computer using the system bluetooth settings. This seems to work more reliably on Windows than on Macintosh.
 
 Once you are connected, serial messages should appear in the textbox in the far right of the component. This component separates the stream of serial data into messages delimited by newline characters, so make sure the microprocessor sends a newline "\n" character between commands. This character has hex value 0x0A (or decimal value 10). This is what you will get for example from a microbit with ```serial.writeLine("")```.
 
