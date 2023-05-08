@@ -87,6 +87,21 @@
     border-radius: 5%;
 }
 
+
+.clear-button {
+    background-color: rgb(72, 39, 163);
+    margin: 10px;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5%;
+}
+
+
 .expand-collapse-button {
     background-color: var(--expand-button-background-color, rgb(72, 39, 163));
     margin: 10px;
