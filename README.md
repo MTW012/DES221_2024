@@ -30,6 +30,17 @@ You can filter out particular types of messages using the buttons directly to th
 
 The "Send" button allows you to communicate data back to the microprocessor. It will send whatever string is in the textbox next to it, followed by a newline character "\n"
 
+In order to create your own handler for messages, you need to define the method ```customHandler```. So, for example, in your index.js you could do something like
+```javascript
+const theSerialComponent = document.querySelector('custom-serial');
+if (theSerialComponent) {
+  theSerialComponent.customHandler = function(message) {
+    // do whatever you want with the 'message'
+    console.log(message);  
+  }
+}
+```
+
 ## MIDI Component
 The MIDI Component allows triggering of MIDI messages from  messages received from the microprocessor. To use the MIDI Component include these lines in your html document:
 ```html
