@@ -432,6 +432,10 @@ class CustomSerial extends HTMLElement {
             }
         }
 
+        if (this.customHandler) {
+            this.customHandler(val);
+        }
+
         if (this.receiveMIDI && matchesMIDI) {
             this.handleMIDI(val);
         }

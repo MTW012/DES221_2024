@@ -9,3 +9,17 @@ function sendStringToMicrobit(str) {
 }
 
 // put any javascript you need for your interface here
+
+
+
+
+
+
+// In order to do custom message handling, uncomment this code, and replace console.log with your own handling code
+// const theSerialComponent = document.querySelector('custom-serial');
+// if (theSerialComponent) {
+//   theSerialComponent.customHandler = function(message) {
+//     // do whatever you want with the 'message'
+//     console.log(message);  
+//   }
+// }
