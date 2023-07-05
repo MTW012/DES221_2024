@@ -1,4 +1,4 @@
-# DES307 2023
+# DES221 2023
 
 A collection of web components for communicating between microprocessors and software.
 
