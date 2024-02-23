@@ -1,6 +1,6 @@
 # DES221 2023
 
-A collection of web components for communicating between microprocessors and software.
+A collection of web components for communicating between microprocessors (like the microbit) and software.
 
 ## Basic Usage
 Open ```index.html``` using **Google Chrome**.
