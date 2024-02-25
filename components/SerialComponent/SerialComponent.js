@@ -252,6 +252,21 @@ class CustomSerial extends HTMLElement {
             }
         });
 
+        this.sendSerialTextBox.addEventListener('change', (event) => {
+            if (this.connectedPort) {
+                this.writeToSerial(this.sendSerialTextBox.value + "\n");
+            }
+
+            if (this.uBitBTDevice && this.rxCharacteristic) {
+                try {
+                    let encoder = new TextEncoder();
+                    this.rxCharacteristic.writeValue(encoder.encode(this.sendSerialTextBox.value + "\n"));
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        }) 
+
         this.logPanel = CustomSerial.newElement('div', 'customSerialLogPanel', 'vertical-panel custom-serial-panel');
         this.mainPanel.appendChild(this.logPanel);
         this.logButton = CustomSerial.newElement('button', 'customSerialLogButton', 'port-toggle toggled-off');
