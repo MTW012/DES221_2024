@@ -238,33 +238,11 @@ class CustomSerial extends HTMLElement {
         this.sendSerialSubPanel.appendChild(this.sendSerialTextBox);
 
         this.sendSerialButton.addEventListener('click', (event) => {
-            if (this.connectedPort) {
-                this.writeToSerial(this.sendSerialTextBox.value + "\n");
-            }
-
-            if (this.uBitBTDevice && this.rxCharacteristic) {
-                try {
-                    let encoder = new TextEncoder();
-                    this.rxCharacteristic.writeValue(encoder.encode(this.sendSerialTextBox.value + "\n"));
-                } catch (error) {
-                    console.log(error);
-                }
-            }
+            this.writeString(this.sendSerialTextBox.value + "\n")
         });
 
         this.sendSerialTextBox.addEventListener('change', (event) => {
-            if (this.connectedPort) {
-                this.writeToSerial(this.sendSerialTextBox.value + "\n");
-            }
-
-            if (this.uBitBTDevice && this.rxCharacteristic) {
-                try {
-                    let encoder = new TextEncoder();
-                    this.rxCharacteristic.writeValue(encoder.encode(this.sendSerialTextBox.value + "\n"));
-                } catch (error) {
-                    console.log(error);
-                }
-            }
+            this.writeString(this.sendSerialTextBox.value + "\n")
         }) 
 
         this.logPanel = CustomSerial.newElement('div', 'customSerialLogPanel', 'vertical-panel custom-serial-panel');
@@ -354,7 +332,6 @@ class CustomSerial extends HTMLElement {
         this.receivePanel.appendChild(this.serialReadoutElement);
     }
 
-    
     // Bluetooth functions
     disconnectBluetooth() {
         if (!this.uBitBTDevice) { return; }
@@ -527,6 +504,22 @@ class CustomSerial extends HTMLElement {
     
             // Allow the serial port to be closed later.
             writer.releaseLock();
+        }
+    }
+
+    // abstraction to write over whichever UART port is active (bluetooth or USB)
+    writeString(str) {
+        if (this.connectedPort) {
+            this.writeToSerial(str);
+        }
+
+        if (this.uBitBTDevice && this.rxCharacteristic) {
+            try {
+                let encoder = new TextEncoder();
+                this.rxCharacteristic.writeValue(encoder.encode(str));
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 

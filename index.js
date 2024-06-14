@@ -4,7 +4,7 @@
 function sendStringToMicrobit(str) {
   const serialComponent = document.querySelector('custom-serial');
   if (serialComponent) {
-    serialComponent.writeToSerial(`${str}\n`);
+    serialComponent.writeString(`${str}\n`);
   }
 }
 
