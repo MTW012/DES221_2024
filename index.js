@@ -9,6 +9,7 @@ function sendStringToMicrobit(str) {
 }
 
 // put any javascript you need for your interface here
+let messagereadout=document.getElementById('messagereadout')
 
 
 
@@ -16,10 +17,11 @@ function sendStringToMicrobit(str) {
 
 
 // In order to do custom message handling, uncomment this code, and replace console.log with your own handling code
-// const theSerialComponent = document.querySelector('custom-serial');
-// if (theSerialComponent) {
-//   theSerialComponent.customHandler = function(message) {
+ const theSerialComponent = document.querySelector('custom-serial');
+if (theSerialComponent) {
+  theSerialComponent.customHandler = function(message) {
 //     // do whatever you want with the 'message'
-//     console.log(message);  
-//   }
-// }
+   console.log(message);  
+   messagereadout.textContent=message
+  }
+ }
