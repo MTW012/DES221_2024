@@ -3,23 +3,23 @@
  * for example, hiding parts of the panel that aren't relevant */
  custom-serial {    
     /* set this to 'none' to hide the send panel, or 'flex' to show it */
-    --send-panel-display: flex;
+    --send-panel-display:none ;
     
     /* set this to 'none' to hide the receive panel, or 'flex' to show it */
     --receive-panel-display: flex;
 
     /* set this to 'none' to hide the log panel, or 'flex' to show it */
-    --log-panel-display: none;
+    --log-panel-display:none ;
     
 
     /* these styles apply to the collapsed microbit component */
-    /* --title-panel-color: rgb(250, 249, 249);
-    --title-panel-border-style: none;
+     --title-panel-color: rgb(161, 9, 237);
+    --title-panel-border-style: black;
     --title-panel-border-color: white;
-    --title-panel-font-family: sans-serif;
-    --title-panel-font-size: 10px;
-    --expand-button-background-color: rgb(72, 39, 163);
-    --expand-button-text-color: white; */
+    --title-panel-font-family: helvetica;
+    --title-panel-font-size: 30px;
+    --expand-button-background-color: aqua(72, 39, 163);
+    --expand-button-text-color: black; */
 
     /* these styles apply to the expanded microbit component */
     /* --main-panel-background-color: rgb(20, 20, 20);

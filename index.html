@@ -16,13 +16,73 @@
         <div class="circle">
             <div class="speedometer-reading" id="speedometerReading">0</div>
         </div>
-        <div class="label">Agitation</div>
+        <div class="label">Calm Watch</div>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
+
   </head>
   <body>
+    <body>
+          <div id="arrowContainer">
+          <div id="arrow"></div>
+      </div>
+      
+      <script>
+          let port;
+  
+          async function connectMicrobit() {
+              port = await navigator.serial.requestPort();
+              await port.open({ baudRate: 115200 });
+              readLoop();
+          }
+  
+          async function readLoop() {
+              const decoder = new TextDecoderStream();
+              const readableStreamClosed = port.readable.pipeTo(decoder.writable);
+              const reader = decoder.readable.getReader();
+  
+              while (true) {
+                  const { value, done } = await reader.read();
+                  if (done) {
+                      break;
+                  }
+  
+                  const data = value.trim();
+                  updateDisplay(data);
+              }
+          }
+  
+          function updateDisplay(data) {
+              const parts = data.split(", ");
+              if (parts.length === 3) {
+                  const x = parseInt(parts[0].split(":")[1]);
+                  const y = parseInt(parts[1].split(":")[1]);
+                  const z = parseInt(parts[2].split(":")[1]);
+  
+                  document.getElementById('xValue').innerText = `X: ${x}`;
+                  document.getElementById('yValue').innerText = `Y: ${y}`;
+                  document.getElementById('zValue').innerText = `Z: ${z}`;
+  
+                  // Move the arrow based on x-axis
+                  moveArrow(x);
+              }
+          }
+  
+          function moveArrow(speed) {
+              // Map the speed value to a range for arrow movement
+              const mappedPosition = Math.max(-100, Math.min(speed, 100)); // Keep within -100 to 100
+              const percentage = mappedPosition / 100 * 50; // Map to -50% to +50%
+  
+              const arrow = document.getElementById('arrow');
+              arrow.style.transform = `translateX(${percentage}%)`; // Move arrow left/right
+          }
+  
+          document.getElementById('connectButton').addEventListener('click', connectMicrobit);
+      </script>
+  </body>
+  </html>
     
     <!-- add your html interface here -->  
      <div id="messagereadout"></div>      
