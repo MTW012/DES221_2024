@@ -14,7 +14,7 @@
 
     /* these styles apply to the collapsed microbit component */
      --title-panel-color: rgb(161, 9, 237);
-    --title-panel-border-style: black;
+    --title-panel-border-style:flex black;
     --title-panel-border-color: white;
     --title-panel-font-family: helvetica;
     --title-panel-font-size: 30px;
