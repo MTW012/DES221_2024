@@ -1,4 +1,4 @@
-.vertical-panel {
+*.vertical-panel {
     display: flex;
     flex-direction: column;
 }
@@ -17,7 +17,7 @@
 
 
 .main-panel {
-    width: 1200px;
+    width: 200px;
 }
 
 
@@ -47,7 +47,7 @@
 .toggled-on {
     margin: var(--toggle-button-margin, 10px);
     background-color: var(--toggle-button-on-color, rgb(44, 104, 46)); /* Green */
-    border-style: var(--toggle-button-on-border-style, none);
+    *border-style: var(--toggle-button-on-border-style, none);
     border-color: var(--toggle-button-on-border-color, rgb(44, 104, 46));
     color: var(--toggle-button-on-font-color, white);
     padding: var(--toggle-button-padding, 15px 32px);
@@ -107,7 +107,7 @@
     margin: 10px;
     border: none;
     color: var(--expand-button-text-color,white);
-    /* padding: 15px 32px; */
+     padding: 15px 32px; */
     text-align: center;
     text-decoration: none;
     display: inline-block;

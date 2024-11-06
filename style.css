@@ -29,7 +29,7 @@ body {
 
 .speedometer-reading {
     position: absolute;
-    top: 60%;
+    top: 66%;
     left: 50%;
     
     transform: translate(-50%, -50%);
@@ -38,7 +38,8 @@ body {
 }
 
 .label {
-    text-align: center;
+    text-align: center; bottom: ;
     margin-top: 10px;
-    font-size: 5em;
+    font-size: 4em;
 }
+

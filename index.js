@@ -1,27 +1,16 @@
-// This will let you send a string from your web interface back to the microbit
-// It adds a "newline" character at the end of the string, so that the microbit
-// program can tell the command is complete
-function sendStringToMicrobit(str) {
-  const serialComponent = document.querySelector('custom-serial');
-  if (serialComponent) {
-    serialComponent.writeString(`${str}\n`);
-  }
+/// Ensure this is in `index.js` or inside a <script> tag within this HTML file
+
+// Select the custom serial component and message display area
+const theSerialComponent = document.getElementById('customSerial');
+const messagereadout = document.getElementById('messagereadout');
+
+if (theSerialComponent && messagereadout) {
+    // Set a custom handler for incoming messages
+    theSerialComponent.customHandler = function(message) {
+        // Display the message in the `messagereadout` element
+        messagereadout.textContent = `Received Message: ${message}`;
+        
+        // Optionally, you could add more handling here, e.g., updating a speedometer
+        document.getElementById("speedometerReading").textContent = message;
+    };
 }
-
-// put any javascript you need for your interface here
-let messagereadout=document.getElementById('messagereadout')
-
-
-
-
-
-
-// In order to do custom message handling, uncomment this code, and replace console.log with your own handling code
- const theSerialComponent = document.querySelector('custom-serial');
-if (theSerialComponent) {
-  theSerialComponent.customHandler = function(message) {
-//     // do whatever you want with the 'message'
-   console.log(message);  
-   messagereadout.textContent=message
-  }
- }
