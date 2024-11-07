@@ -10,7 +10,19 @@ if (theSerialComponent && messagereadout) {
         // Display the message in the `messagereadout` element
         messagereadout.textContent = `Received Message: ${message}`;
         
-        // Optionally, you could add more handling here, e.g., updating a speedometer
-        document.getElementById("speedometerReading").textContent = message;
+        
     };
+     // Example of dynamically changing fire danger level (you can replace with logic for real-time data)
+     function setFireDangerLevel(level) {
+      const allLevels = document.querySelectorAll('.level');
+      allLevels.forEach((el) => {
+        el.classList.remove('active');
+      });
+      const activeLevel = document.querySelector(`.level.${level.toLowerCase().replace(" ", "-")}`);
+      activeLevel.classList.add('active');
+    }
+
+    // Example: Set the fire danger to "Severe"
+    setFireDangerLevel('Severe');
 }
+
