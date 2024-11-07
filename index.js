@@ -3,12 +3,16 @@
 // Select the custom serial component and message display area
 const theSerialComponent = document.getElementById('customSerial');
 const messagereadout = document.getElementById('messagereadout');
-
+let agitationalertlevel=0;
 if (theSerialComponent && messagereadout) {
     // Set a custom handler for incoming messages
     theSerialComponent.customHandler = function(message) {
         // Display the message in the `messagereadout` element
         messagereadout.textContent = `Received Message: ${message}`;
+        let messageparts= message.split(':');
+        if (messageparts.length >1){
+          agitationalertlevel=parseInt(messageparts[1])
+        }
         
         
     };
