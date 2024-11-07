@@ -42,3 +42,10 @@
       .fire-danger-semicircle {
         clip-path: inset(50% 0 0 0); /* Clip the top half to form a semicircle */
       }
+
+      #Mainpanel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
