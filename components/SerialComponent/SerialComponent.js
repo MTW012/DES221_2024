@@ -1,5 +1,5 @@
 // This is our custom web component, which implements Serial port access
-//*class CustomSerial extends HTMLElement {
+class CustomSerial extends HTMLElement {
 
     // A utility function for creating a new html element with given id and class
     static newElement(tag, id, clsName) {
@@ -212,12 +212,11 @@
         this.btPingButton.addEventListener('click', async (event) => {
              if (!this.rxCharacteristic) { return; }
       
-             try {
-        /        let encoder = new TextEncoder();
+             try {   let encoder = new TextEncoder();
                  this.rxCharacteristic.writeValue(encoder.encode("Ping\n"));
-        /     } catch (error) {
-        /        console.log(error);
-        /    }
+            } catch (error) {
+               console.log(error);
+           }
          });
 
         
@@ -523,6 +522,6 @@
         }
     }
 
-}
 
+}
 customElements.define('custom-serial', CustomSerial);
