@@ -11,7 +11,22 @@ if (theSerialComponent && messagereadout) {
         messagereadout.textContent = `Received Message: ${message}`;
         let messageparts= message.split(':');
         if (messageparts.length >1){
-          agitationalertlevel=parseInt(messageparts[1])
+          let rawvalue=parseInt(messageparts[1]);
+          if (rawvalue<500){
+            agitationalertlevel=0;
+          } else if (rawvalue<550){
+            agitationalertlevel=1;
+          } else if (rawvalue<600){
+            agitationalertlevel=2
+          }else if (rawvalue<650){
+            agitationalertlevel=3
+          }else if (rawvalue<700){
+            agitationalertlevel=4
+          }            
+          } else {
+            agitationalertlevel=5;
+          }
+          setFireDangerLevel(agitationalertlevel)
         }
         
         
