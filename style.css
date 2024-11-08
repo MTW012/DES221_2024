@@ -21,16 +21,15 @@
       }
       
       .fire-danger-semicircle {
-        width: 300px;            /* Width of the semicircle */
-        height: 300px;           /* Full circle size */
+        width: 500px;            /* Width of the semicircle */
+        height: 500px;           /* Full circle size */
         background: conic-gradient(
-          #66bb6a 0deg 51.43deg,   /* Low (green) */
-          #ffeb3b 51.43deg 102.86deg,  /* Moderate (yellow) */
-          #ff9800 102.86deg 154.29deg,  /* High (orange) */
-          #f44336 154.29deg 205.71deg,  /* Very High (red) */
-          #d32f2f 205.71deg 257.14deg,  /* Severe (dark red) */
-          #c2185b 257.14deg 308.57deg,  /* Extreme (purple) */
-          #9c27b0 308.57deg 360deg     /* Catastrophic (dark purple) */
+            #66bb6a 0deg 120deg,   /* Low (green) */
+            #ffeb3b 120deg 160deg,  /* Moderate (yellow) */
+            #ff9800 160deg 200deg,  /* High (orange) */
+            #f44336 200deg 240deg, /* Very High (red) */
+            #d32f2f 240deg 360deg/* Severe (dark red) */
+           
         );
         position: relative;
         border-radius: 50%;  /* Make it a full circle */
@@ -46,6 +45,6 @@
       #Mainpanel {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: ;
       }
       
