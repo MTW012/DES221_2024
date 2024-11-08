@@ -36,46 +36,17 @@ if (theSerialComponent && messagereadout) {
         setFireDangerLevel(agitationalertlevel);
     };
 
-    // Example of dynamically changing fire danger level (you can replace with logic for real-time data)
-    function setFireDangerLevel(level) {
-        const allLevels = document.querySelectorAll('.level');
-        
-        // Remove 'active' class from all levels
-        allLevels.forEach((el) => {
-            el.classList.remove('active');
-        });
-        
-        // Dynamically map the level to the corresponding class name
-        let levelClass = '';
-        switch(level) {
-            case 0:
-                levelClass = 'low';
-                break;
-            case 1:
-                levelClass = 'moderate';
-                break;
-            case 2:
-                levelClass = 'high';
-                break;
-            case 3:
-                levelClass = 'very-high';
-                break;
-            case 4:
-                levelClass = 'severe';
-                break;
-            case 5:
-                levelClass = 'catastrophic';
-                break;
-            default:
-                levelClass = 'low'; // Default to low if no valid level
-        }
-        
-        // Activate the class corresponding to the current fire danger level
-        const activeLevel = document.querySelector(`.level.${levelClass}`);
-        if (activeLevel) {
-            activeLevel.classList.add('active');
-        }
+    // Function to update the fire danger level (visual representation)
+    function updateFireDangerLevel(level) {
+      const semicircle = document.querySelector('.fire-danger-semicircle');
+      
+      // Remove all possible active levels (based on class names)
+      semicircle.classList.remove('level-0', 'level-1', 'level-2', 'level-3', 'level-4');
+
+      // Add the class corresponding to the current level
+      semicircle.classList.add(`level-${level}`);
     }
 
     // Example: Set the fire danger to "Severe" initially (this is just for testing)
     setFireDangerLevel(4); // Set default level to "Severe"
+}
