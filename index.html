@@ -1,35 +1,30 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>DES221</title>
-    <script src="components/SerialComponent/SerialComponent.js"></script>
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="componentStyle.css">
-    <html lang="en">
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-
-          <script src="script.js"></script>
-</body>
-<title>Half Pie Chart - Fire Danger Rating</title>
-  <link rel="stylesheet" href="style.css">
+    <title>DES221 - Fire Danger Level</title> <!-- Correct title placement -->
+    <script src="components/SerialComponent/SerialComponent.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css"> <!-- Only once -->
+    <link rel="stylesheet" href="componentStyle.css"> <!-- You can keep this if needed -->
 </head>
 <body>
-<div id="Mainpanel">
-  <div class="fire-danger-chart">
-    <div class="fire-danger-semicircle">
-      <div class="pie-chart"></div>
+    <div id="Mainpanel">
+        <div class="fire-danger-chart">
+            <div class="fire-danger-semicircle">
+                <div class="pie-chart"></div>
+            </div>
+        </div>
+        <h3>Agitation Alert Detection</h3>
+
+        <!-- Message display area -->
+        <div id="messagereadout"></div> 
+
+        <!-- Custom Serial Component for data input -->
+        <custom-serial id="customSerial"></custom-serial>
     </div>
-  </div>
-    <h3>Agitation Alert Detection</h3>
 
- 
-    <!-- add your html interface here -->  
-    <div id="messagereadout"></div>      
-    <custom-serial id="customSerial"></custom-serial></div>
-
-    <script src="index.js"></script>
-  </body>
+    <script src="index.js"></script> <!-- Script should be placed just before </body> -->
+</body>
 </html>
