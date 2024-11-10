@@ -13,7 +13,7 @@
         font-size: 18px;
         color: #444;
         font-weight: bold;
-        margin-top: 20px;
+        margin-top: 10px;
       }
       
       .fire-danger-chart {
@@ -42,7 +42,7 @@
         clip-path: inset(50% 0 0 0); /* Clip the top half to form a semicircle */
       }
       /* Default (Low) - Level 0 */
-.fire-danger-semicircle.level-0 {
+    .fire-danger-semicircle.level-0 {
     background: conic-gradient(
         #66bb6a 0deg 120deg,   /* Low (green) */
         #ffeb3b 120deg 160deg, /* Moderate (yellow) */
@@ -53,7 +53,7 @@
 }
 
 /* Moderate - Level 1 */
-.fire-danger-semicircle.level-1 {
+    .fire-danger-semicircle.level-1 {
     background: conic-gradient(
         #66bb6a 0deg 100deg,  /* Low (green) */
         #ffeb3b 100deg 160deg, /* Moderate (yellow) */
@@ -64,7 +64,7 @@
 }
 
 /* High - Level 2 */
-.fire-danger-semicircle.level-2 {
+    .fire-danger-semicircle.level-2 {
     background: conic-gradient(
         #66bb6a 0deg 80deg,   /* Low (green) */
         #ffeb3b 80deg 160deg, /* Moderate (yellow) */
@@ -75,7 +75,7 @@
 }
 
 /* Very High - Level 3 */
-.fire-danger-semicircle.level-3 {
+    .fire-danger-semicircle.level-3 {
     background: conic-gradient(
         #66bb6a 0deg 60deg,   /* Low (green) */
         #ffeb3b 60deg 140deg, /* Moderate (yellow) */
@@ -86,7 +86,7 @@
 }
 
 /* Severe - Level 4 */
-.fire-danger-semicircle.level-4 {
+    .fire-danger-semicircle.level-4 {
     background: conic-gradient(
         #66bb6a 0deg 40deg,   /* Low (green) */
         #ffeb3b 40deg 120deg, /* Moderate (yellow) */
@@ -97,7 +97,7 @@
 }
 
 /* Optional: Add a default catastrophic level (when there is no data) */
-.fire-danger-semicircle.level-5 {
+    .fire-danger-semicircle.level-5 {
     background: conic-gradient(
         #d32f2f 0deg 360deg  /* Severe (dark red) */
     );
