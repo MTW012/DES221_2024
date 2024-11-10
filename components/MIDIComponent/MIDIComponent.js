@@ -1,5 +1,5 @@
 // This is our custom web component, which implements MIDI port access
-class CustomMIDI extends HTMLElement {
+/*class CustomMIDI extends HTMLElement {
 
     // A utility function for creating a new html element with given id and class
     static newElement(tag, id, clsName) {

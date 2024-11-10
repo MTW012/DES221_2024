@@ -30,7 +30,7 @@
 
 
 /*allows for external override of send and receive panel displays */
-#customSerialSendPanel {
+/*#customSerialSendPanel {
     display: var(--send-panel-display, flex);
 }
 
@@ -85,7 +85,7 @@
     border-radius: var(--toggle-button-border-radius, 5%);
 }
 
-.serial-send-button {
+/*.serial-send-button {
     background-color: rgb(72, 39, 163);
     margin: 10px;
     border: none;
