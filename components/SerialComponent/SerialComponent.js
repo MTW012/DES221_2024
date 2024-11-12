@@ -348,10 +348,10 @@ class CustomSerial extends HTMLElement {
         }
     
         const receivedString = String.fromCharCode.apply(null, receivedData);
-        // console.log(receivedString);
-        // if (receivedString === "S") {
-        //     console.log("Shaken!");
-        // }
+         console.log(receivedString);
+         if (receivedString === "S") {
+            console.log("Shaken!");
+         }
         const val = receivedString.trim();
         this.dispatchMessage(val);
     }
