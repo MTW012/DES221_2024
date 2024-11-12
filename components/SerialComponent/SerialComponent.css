@@ -36,7 +36,7 @@
 }
 
 /*Send and Receive Panels */
-/*#customSerialSendPanel, #customSerialReceivePanel {
+#customSerialSendPanel, #customSerialReceivePanel {
     display: none;
     flex-direction: column;
     gap: 10px; /* Add space between items */
@@ -44,7 +44,7 @@
 
 /* Toggle Button Styles */
 .port-toggle {
-    min-width: 20px;
+    min-width: 5px;
     min-height: 10px;
 }
 

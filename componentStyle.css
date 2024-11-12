@@ -1,72 +1,70 @@
 
-/* this allows for customising the layout of parts of the Microbit panel
- * for example, hiding parts of the panel that aren't relevant */
- //*custom-serial {    
-    /* set this to 'none' to hide the send panel, or 'flex' to show it */
-    --send-panel-display: none ;
+/* This allows customizing the layout of parts of the Microbit panel */
+/* For example, hiding parts of the panel that aren't relevant */
+
+/* Uncomment the custom-serial block to style it */
+custom-serial {    
+    /* Set this to 'none' to hide the send panel, or 'flex' to show it */
+    --send-panel-display: none;
     
-    /* set this to 'none' to hide the receive panel, or 'flex' to show it */
+    /* Set this to 'none' to hide the receive panel, or 'flex' to show it */
     --receive-panel-display: none;
 
-    /* set this to 'none' to hide the log panel, or 'flex' to show it */
-    --log-panel-display:none;
-    
+    /* Set this to 'none' to hide the log panel, or 'flex' to show it */
+    --log-panel-display: none;
 
-    /* these styles apply to the collapsed microbit component */
+    /* These styles apply to the collapsed Microbit component */
     --title-panel-color: rgb(161, 9, 237);
-    --title-panel-border-style:flex black;
-    --title-panel-border-color:--toggle-button-on-border-style;
-    --title-panel-font-family: helvetica;
+    --title-panel-border-style: flex black;
+    --title-panel-border-color: var(--toggle-button-on-border-style);
+    --title-panel-font-family: Helvetica;
     --title-panel-font-size: 10px;
-    --expand-button-background-color: aqua(72, 39, 163);
-    --expand-button-text-color: black; */
+    --expand-button-background-color: rgb(72, 39, 163);
+    --expand-button-text-color: black;
 
-    /* these styles apply to the expanded microbit component */
-     --main-panel-background-color: rgb(20, 20, 20);
+    /* These styles apply to the expanded Microbit component */
+    --main-panel-background-color: rgb(20, 20, 20);
     --main-panel-color: white;
     --main-panel-font-family: sans-serif;
     --main-panel-margin: 5px;
     --main-panel-border-style: none;
     --main-panel-border-color: rgb(111, 110, 110);
-    --main-panel-padding: px;
-    --sub-panel-background-color: rgb(20, 20, 20); */
+    --main-panel-padding: 5px; /* Added value here */
+    --sub-panel-background-color: rgb(20, 20, 20);
     
-    /* these allow styling of toggle buttons */
-    --toggle-button-panel-color: yellow(20, 20, 20);
+    /* These allow styling of toggle buttons */
+    --toggle-button-panel-color: yellow;
     --toggle-button-margin: 2px;
     --toggle-button-border-radius: 2%;
-    --toggle-button-padding: 2px 2px; */
+    --toggle-button-padding: 2px 2px;
     
-    /* and these allow styling of toggle buttons when toggled on */
-    /* --toggle-button-on-color: #08680c;
+    /* These allow styling of toggle buttons when toggled on */
+    --toggle-button-on-color: #08680c;
     --toggle-button-on-border-style: none;
     --toggle-button-on-border-color: white;
     --toggle-button-on-font-color: white;
-    --toggle-button-on-font-family: san-serif;
-    --toggle-button-on-font-size: 16px; */
-    
-    /* and these allow styling of toggle buttons when toggled off */
-    /* --toggle-button-off-color: rgb(100, 6, 6);
+    --toggle-button-on-font-family: sans-serif;
+    --toggle-button-on-font-size: 16px;
+
+    /* These allow styling of toggle buttons when toggled off */
+    --toggle-button-off-color: rgb(100, 6, 6);
     --toggle-button-off-border-style: none;
     --toggle-button-off-border-color: yellow;
     --toggle-button-off-font-color: white;
-    --toggle-button-off-font-family: san-serif;
-    --toggle-button-off-font-size: 16px;    */
+    --toggle-button-off-font-family: sans-serif;
+    --toggle-button-off-font-size: 16px;
+}
 
-
-
-
-/* over-ride styles for the Custom Midi Component */
+/* Over-ride styles for the Custom Midi Component */
 /*
 custom-midi {
-
-} 
+    // Add custom styles for Midi component
+}
 */
 
-
-/* over-ride styles for the Custom Graphics Component */
-/* 
+/* Over-ride styles for the Custom Graphics Component */
+/*
 custom-graphics {
-
-} 
+    // Add custom styles for Graphics component
+}
 */

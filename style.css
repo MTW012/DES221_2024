@@ -91,3 +91,13 @@ h3 {
 .level.extreme {
     color: #b71c1c;
 }
+/* visually highlighting the active level */
+.level.active {
+    font-size: 18px;          /* Slightly larger font */
+    font-weight: bold;        /* Make the text bolder */
+    color: #ffffff;           /* Change to white for contrast */
+    background-color: #333;   /* Dark background to highlight */
+    padding: 5px 10px;        /* Add some padding for emphasis */
+    border-radius: 5px;       /* Optional: round the corners */
+}
+
