@@ -221,7 +221,7 @@ class CustomSerial extends HTMLElement {
 
         
         // button and text box for sending arbitrary strings to the attached device
-        this.sendPanel = CustomSerial.newElement('div', 'customSerialSendPanel', 'vertical-panel custom-serial-panel');
+       /* this.sendPanel = CustomSerial.newElement('div', 'customSerialSendPanel', 'vertical-panel custom-serial-panel');
         this.mainPanel.appendChild(this.sendPanel);
               
         this.sendSerialSubPanel = CustomSerial.newElement('div', 'customSerialSendSubPanel', 'horizontal-panel', 'custom-serial-panel');
@@ -242,7 +242,7 @@ class CustomSerial extends HTMLElement {
 
         this.sendSerialTextBox.addEventListener('change', (event) => {
             this.writeString(this.sendSerialTextBox.value + "\n")
-        }) 
+        }) */
 
         this.logPanel = CustomSerial.newElement('div', 'customSerialLogPanel', 'vertical-panel custom-serial-panel');
         this.mainPanel.appendChild(this.logPanel);

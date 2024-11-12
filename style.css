@@ -1,54 +1,93 @@
-/* General styling for body */
-    body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f4ecec;
-        margin: 0;
-      }
-      
-      h3 {
-        font-size: 18px;
-        color: #444;
-        font-weight: bold;
-        margin-top: 10px;
-      }
-      
-      .fire-danger-chart {
-        text-align: center;
-      }
-      
-      .fire-danger-semicircle {
-        width: 500px;            /* Width of the semicircle */
-        height: 500px;           /* Full circle size */
-        background: conic-gradient(
-            #66bb6a 0deg 120deg,   /* Low (green) */
-            #ffeb3b 120deg 160deg,  /* Moderate (yellow) */
-            #ff9800 160deg 200deg,  /* High (orange) */
-            #f44336 200deg 240deg, /* Very High (red) */
-            #d32f2f 240deg 360deg/* Severe (dark red) */
-           
-        );
-        position: relative;
-        border-radius: 50%;  /* Make it a full circle */
-        margin: 0 auto;
-        overflow: hidden;    /* Clip the top half */
-        transform: rotate(180deg); /* Rotate to start from the bottom center */
-      }
-      
-      .fire-danger-semicircle {
-        clip-path: inset(50% 0 0 0); /* Clip the top half to form a semicircle */
-      }
-      /* Default (Low) - Level 0 */
-   
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;    /* Horizontally center the content */
+    align-items: center;        /* Vertically center the content */
+    height: 100vh;              /* Use the full height of the viewport */
+    background-color: #f4ecec;
+    margin: 0;
+}
 
+#Mainpanel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;  /* Center content vertically within Mainpanel */
+    align-items: center;      /* Center content horizontally within Mainpanel */
+    height: 100%;             /* Allow Mainpanel to fill the entire viewport */
+}
 
-      #Mainpanel {
-        display: flex;
-        flex-direction: column;
-        align-items: ;
-      }
-      
-      
+h3 {
+    font-size: 18px;
+    color: #444;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center; /* Make sure the text is centered */
+}
+
+.fire-danger-chart {
+    text-align: center;
+    position: relative;
+}
+
+.fire-danger-semicircle {
+    width: 500px;
+    height: 500px;
+    background: conic-gradient(
+        #66bb6a 0deg 120deg,   /* Low (green) */
+        #ffeb3b 120deg 160deg,  /* Moderate (yellow) */
+        #ff9800 160deg 200deg,  /* High (orange) */
+        #f44336 200deg 240deg, /* Very High (red) */
+        #d32f2f 240deg 360deg  /* Severe (dark red) */
+    );
+    position: relative;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    clip-path: inset(50% 0 0 0); /* Clip the top half to form a semicircle */
+    transform: rotate(180deg); /* Rotate to start from the bottom center */
+}
+
+.fire-danger-labels {
+    display: flex;
+    justify-content: space-evenly;  /* Evenly space out labels */
+    position: absolute;
+    top: 65%; /* Keep labels just below the semicircle */
+    left: 0;
+    width: 100%; /* Make sure the labels span across the width of the semicircle */
+    transform: translateY(-10px); /* Move the labels 10px closer to the semicircle */
+    padding: 0 15px;
+    box-sizing: border-box; /* Ensure labels are well-contained */
+}
+
+.level {
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+/* Define the colors for each level */
+.level.low {
+    color: #66bb6a;
+}
+
+.level.moderate {
+    color: #ffeb3b;
+}
+
+.level.high {
+    color: #ff9800;
+}
+
+.level.very-high {
+    color: #f44336;
+}
+
+.level.severe {
+    color: #d32f2f;
+}
+
+.level.extreme {
+    color: #b71c1c;
+}

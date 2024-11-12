@@ -17,7 +17,7 @@
     --title-panel-border-style:flex black;
     --title-panel-border-color:--toggle-button-on-border-style;
     --title-panel-font-family: helvetica;
-    --title-panel-font-size: 30px;
+    --title-panel-font-size: 10px;
     --expand-button-background-color: aqua(72, 39, 163);
     --expand-button-text-color: black; */
 
@@ -53,7 +53,7 @@
     --toggle-button-off-font-family: san-serif;
     --toggle-button-off-font-size: 16px;    */
 
-}
+
 
 
 /* over-ride styles for the Custom Midi Component */

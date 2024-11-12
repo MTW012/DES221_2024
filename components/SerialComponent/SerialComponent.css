@@ -21,7 +21,7 @@
     color: var(--title-panel-color, aliceblue);
 }
 
-#customSerialMainPanel {
+/*#customSerialMainPanel {
     background-color: var(--main-panel-background-color, rgb(19, 18, 18));
     color: var(--main-panel-color, aliceblue);
     font-family: var(--main-panel-font-family, Verdana, Geneva, Tahoma, sans-serif);
@@ -35,23 +35,23 @@
     margin: auto; /* Center the panel */
 }
 
-/* Send and Receive Panels */
-#customSerialSendPanel, #customSerialReceivePanel {
-    display: flex;
+/*Send and Receive Panels */
+/*#customSerialSendPanel, #customSerialReceivePanel {
+    display: none;
     flex-direction: column;
     gap: 10px; /* Add space between items */
 }
 
 /* Toggle Button Styles */
 .port-toggle {
-    min-width: 75px;
-    min-height: 30px;
+    min-width: 20px;
+    min-height: 10px;
 }
 
 .toggled-on {
     margin: var(--toggle-button-margin, 10px);
     background-color: var(--toggle-button-on-color, rgb(44, 104, 46)); /* Green */
-    padding: 10px 20px;
+    padding: 5px 10px;
     color: white;
     border-radius: 5%;
     font-size: 14px;
@@ -73,8 +73,8 @@
 /* Custom Serial Panel */
 .custom-serial-panel {
     background-color: var(--sub-panel-background-color, rgb(45, 41, 41));
-    margin: 5px;
-    padding: 10px;
+    margin: 2px;
+    padding: 2px;
     display: flex;
     flex-direction: column; /* Stack contents vertically */
     align-items: center;
@@ -82,11 +82,11 @@
 }
 
 .custom-serial-panel-label {
-    font-size: 12px;
+    font-size: 5px;
     text-align: center;
 }
 
-.custom-serial-readout {
+/*.custom-serial-readout {
     border-style: solid;
     border-color: rgb(71, 64, 55);
     background-color: rgb(10, 11, 10);
