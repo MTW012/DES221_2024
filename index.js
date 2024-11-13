@@ -101,4 +101,4 @@ function setFireDangerLevel(level) {
 }
 
 // Start the simulation
-startFakeHeartRateStream();
+
