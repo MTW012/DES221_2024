@@ -1,4 +1,7 @@
-// HTML elements and simulated levels
+/// Updated fire danger names to include SEVERE and EXTREME
+const fireDangerNames = ["LOW", "MODERATE", "HIGH", "VERY_HIGH", "SEVERE", "EXTREME"];
+
+// Get HTML elements
 const messagereadout = document.getElementById('messagereadout');
 const fireDangerSemicircle = document.querySelector('.fire-danger-semicircle');
 
@@ -31,8 +34,7 @@ function processHeartRateData(heartRate) {
         alertLevel = 3;  // VERY HIGH
     } else if (heartRate < 140) {
         alertLevel = 4; // SEVERE
-    }   
-     else {
+    } else {
         alertLevel = 5 ;  // EXTREME
     }
 
@@ -41,66 +43,42 @@ function processHeartRateData(heartRate) {
 
 // Function to update the conic gradient based on alert level and highlight only the active segment
 function updateGradient(level) {
-  switch(level) {
-      case 0: // LOW
-          fireDangerSemicircle.style.background = `
-              conic-gradient(
-                  #66bb6a 0deg 120deg,           /* Active Segment */
-                  rgba(255,255,255,0.1) 120deg 360deg  /* Inactive Segments */
-              )`;
-          break;
-      case 1: // MODERATE
-          fireDangerSemicircle.style.background = `
-              conic-gradient(
-                  rgba(255,255,255,0.1) 0deg 120deg,    /* Inactive Segments */
-                  #ffeb3b 120deg 160deg,                 /* Active Segment */
-                  rgba(255,255,255,0.1) 160deg 360deg   /* Inactive Segments */
-              )`;
-          break;
-      case 2: // HIGH
-          fireDangerSemicircle.style.background = `
-              conic-gradient(
-                  rgba(255,255,255,0.1) 0deg 160deg,    /* Inactive Segments */
-                  #ff9800 160deg 200deg,                 /* Active Segment */
-                  rgba(255,255,255,0.1) 200deg 360deg   /* Inactive Segments */
-              )`;
-          break;
-      case 3: // VERY HIGH
-          fireDangerSemicircle.style.background = `
-              conic-gradient(
-                  rgba(255,255,255,0.1) 0deg 200deg,    /* Inactive Segments */
-                  #f44336 200deg 240deg,                 /* Active Segment */
-                  rgba(255,255,255,0.1) 240deg 360deg   /* Inactive Segments */
-              )`;
-          break;
-      case 4: // EXTREME
-          fireDangerSemicircle.style.background = `
-              conic-gradient(
-                  rgba(255,255,255,0.1) 0deg 240deg,    /* Inactive Segments */
-                  #d32f2f 240deg 360deg                  /* Active Segment */
-              )`;
-          break;
-      default:
-          // Default gradient for unknown levels
-          fireDangerSemicircle.style.background = `
-              conic-gradient(
-                  #66bb6a 0deg 120deg,    
-                  rgba(255,255,255,0.1) 120deg 160deg,  
-                  rgba(255,255,255,0.1) 160deg 200deg,  
-                  rgba(255,255,255,0.1) 200deg 240deg,  
-                  rgba(255,255,255,0.1) 240deg 360deg   
-              )`;
-  }
+    switch(level) {
+        case 0: // LOW
+            fireDangerSemicircle.style.background = `
+                conic-gradient(#66bb6a 0deg 120deg, rgba(255,255,255,0.1) 120deg 360deg)`;
+            break;
+        case 1: // MODERATE
+            fireDangerSemicircle.style.background = `
+                conic-gradient(rgba(255,255,255,0.1) 0deg 120deg, #ffeb3b 120deg 160deg, rgba(255,255,255,0.1) 160deg 360deg)`;
+            break;
+        case 2: // HIGH
+            fireDangerSemicircle.style.background = `
+                conic-gradient(rgba(255,255,255,0.1) 0deg 160deg, #ff9800 160deg 200deg, rgba(255,255,255,0.1) 200deg 360deg)`;
+            break;
+        case 3: // VERY HIGH
+            fireDangerSemicircle.style.background = `
+                conic-gradient(rgba(255,255,255,0.1) 0deg 200deg, #f44336 200deg 240deg, rgba(255,255,255,0.1) 240deg 360deg)`;
+            break;
+        case 4: // SEVERE
+            fireDangerSemicircle.style.background = `
+                conic-gradient(rgba(255,255,255,0.1) 0deg 240deg, #d32f2f 240deg 300deg, rgba(255,255,255,0.1) 300deg 360deg)`;
+            break;
+        case 5: // EXTREME
+            fireDangerSemicircle.style.background = `
+                conic-gradient(rgba(255,255,255,0.1) 0deg 300deg, #b71c1c 300deg 360deg)`;
+            break;
+        default:
+            fireDangerSemicircle.style.background = `
+                conic-gradient(#66bb6a 0deg 120deg, #ffeb3b 120deg 160deg, #ff9800 160deg 200deg, #f44336 200deg 240deg, #d32f2f 240deg 300deg, #b71c1c 300deg 360deg)`;
+    }
 }
-
 
 // Updates the UI to reflect the alert level and makes the semicircle flash if needed
 function setFireDangerLevel(level) {
-    const fireDangerNames = ["LOW", "MODERATE", "HIGH", "VERY_HIGH", "EXTREME"];
     const levelName = fireDangerNames[level] || "Unknown";
     console.log("Setting fire danger level to:", levelName);
 
-    // Remove 'active' class from all levels and set it on the appropriate level element
     const allLevels = document.querySelectorAll('.level');
     allLevels.forEach((el) => el.classList.remove('active'));
 
@@ -115,7 +93,7 @@ function setFireDangerLevel(level) {
     updateGradient(level);
 
     // Add or remove the flashing class based on alert level
-    if (level >= 4) { // VERY_HIGH or EXTREME levels
+    if (level >= 4) { // SEVERE or EXTREME levels
         fireDangerSemicircle.classList.add('flashing');
     } else {
         fireDangerSemicircle.classList.remove('flashing');
