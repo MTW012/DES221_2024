@@ -1,5 +1,5 @@
 /// Updated fire danger names to include SEVERE and EXTREME
-const fireDangerNames = ["LOW", "MODERATE", "HIGH", "VERY_HIGH", "SEVERE", "EXTREME"];
+const fireDangerNames = ["CALM", "MILD", "ELEVATED", "HEIGHTENED", "INTENSE", "CRITICAL"];
 
 // Get HTML elements
 const messagereadout = document.getElementById('messagereadout');
@@ -25,17 +25,17 @@ function processHeartRateData(heartRate) {
     let alertLevel;
 
     if (heartRate < 60) {
-        alertLevel = 0;  // LOW
+        alertLevel = 0;  // CALM
     } else if (heartRate < 80) {
-        alertLevel = 1;  // MODERATE
+        alertLevel = 1;  // MILD
     } else if (heartRate < 100) {
-        alertLevel = 2;  // HIGH
+        alertLevel = 2;  // ELEVATED
     } else if (heartRate < 120) {
-        alertLevel = 3;  // VERY HIGH
+        alertLevel = 3;  // HEIGHTENED
     } else if (heartRate < 140) {
-        alertLevel = 4; // SEVERE
+        alertLevel = 4; // INTENSE
     } else {
-        alertLevel = 5 ;  // EXTREME
+        alertLevel = 5 ;  // CRITICAL
     }
 
     setFireDangerLevel(alertLevel);
@@ -44,27 +44,27 @@ function processHeartRateData(heartRate) {
 // Function to update the conic gradient based on alert level and highlight only the active segment
 function updateGradient(level) {
     switch(level) {
-        case 0: // LOW
+        case 0: // CALM
             fireDangerSemicircle.style.background = `
                 conic-gradient(#66bb6a 0deg 120deg, rgba(255,255,255,0.1) 120deg 360deg)`;
             break;
-        case 1: // MODERATE
+        case 1: // MILD
             fireDangerSemicircle.style.background = `
                 conic-gradient(rgba(255,255,255,0.1) 0deg 120deg, #ffeb3b 120deg 160deg, rgba(255,255,255,0.1) 160deg 360deg)`;
             break;
-        case 2: // HIGH
+        case 2: // ELEVATED
             fireDangerSemicircle.style.background = `
                 conic-gradient(rgba(255,255,255,0.1) 0deg 160deg, #ff9800 160deg 200deg, rgba(255,255,255,0.1) 200deg 360deg)`;
             break;
-        case 3: // VERY HIGH
+        case 3: // HEIGHTENED
             fireDangerSemicircle.style.background = `
                 conic-gradient(rgba(255,255,255,0.1) 0deg 200deg, #f44336 200deg 240deg, rgba(255,255,255,0.1) 240deg 360deg)`;
             break;
-        case 4: // SEVERE
+        case 4: // INTENSE
             fireDangerSemicircle.style.background = `
                 conic-gradient(rgba(255,255,255,0.1) 0deg 240deg, #d32f2f 240deg 300deg, rgba(255,255,255,0.1) 300deg 360deg)`;
             break;
-        case 5: // EXTREME
+        case 5: // CRITICAL
             fireDangerSemicircle.style.background = `
                 conic-gradient(rgba(255,255,255,0.1) 0deg 300deg, #b71c1c 300deg 360deg)`;
             break;
@@ -93,7 +93,7 @@ function setFireDangerLevel(level) {
     updateGradient(level);
 
     // Add or remove the flashing class based on alert level
-    if (level >= 4) { // SEVERE or EXTREME levels
+    if (level >= 4) { // INTENSE or CRITICAL levels
         fireDangerSemicircle.classList.add('flashing');
     } else {
         fireDangerSemicircle.classList.remove('flashing');
@@ -139,20 +139,20 @@ if (theSerialComponent && messagereadout) {
             
             // Determine the agitationalertlevel based on raw value
             if (rawvalue < 500) {
-                agitationalertlevel = 0;  // Low
+                agitationalertlevel = 0;  // Calm
             } else if (rawvalue < 550) {
-                agitationalertlevel = 1;  // Moderate
+                agitationalertlevel = 1;  // Mild
             } else if (rawvalue < 600) {
-                agitationalertlevel = 2;  // High
+                agitationalertlevel = 2;  // Elevated
             } else if (rawvalue < 650) {
-                agitationalertlevel = 3;  // Very High
+                agitationalertlevel = 3;  // Heightened
             } else if (rawvalue < 700) {
-                agitationalertlevel = 4;  // Severe
+                agitationalertlevel = 4;  // Intense
             } else {
-                agitationalertlevel = 5;  // Catastrophic (if this is a valid state)
+                agitationalertlevel = 5;  // Critical (if this is a valid state)
             }
         } else {
-            agitationalertlevel = 5; // Default to Catastrophic if no valid data
+            agitationalertlevel = 5; // Default to Critical  if no valid data
         }
         
         // Call function to update the fire danger level

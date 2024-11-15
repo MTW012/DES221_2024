@@ -36,11 +36,11 @@ h3 {
     width: 500px;
     height: 500px;
     background: conic-gradient(
-        #66bb6a 0deg 120deg,    /* Low (green) */
-        #ffeb3b 120deg 160deg,  /* Moderate (yellow) */
-        #ff9800 160deg 200deg,  /* High (orange) */
-        #f44336 200deg 240deg,  /* Very High (red) */
-        #d32f2f 240deg 360deg   /* Severe (dark red) */
+        #66bb6a 0deg 120deg,    /* calm (green) */
+        #ffeb3b 120deg 160deg,  /* Mild (yellow) */
+        #ff9800 160deg 200deg,  /* elevated (orange) */
+        #f44336 200deg 240deg,  /* Heightened (red) */
+        #d32f2f 240deg 360deg   /* Intensen(dark red) */
     );
     position: relative;
     margin: 0 auto;
@@ -99,27 +99,27 @@ h3 {
 }
 
 /* Level Colors */
-.level.low {
+.level.calm {
     color: #66bb6a;
 }
 
-.level.moderate {
+.level.mild {
     color: #ffeb3b;
 }
 
-.level.high {
+.level.elevated {
     color: #ff9800;
 }
 
-.level.very-high {
+.level.heightened {
     color: #f44336;
 }
 
-.level.severe {
+.level.intense {
     color: #d32f2f;
 }
 
-.level.extreme {
+.level.critical {
     color: #b71c1c;
 }
 
@@ -132,3 +132,4 @@ h3 {
     padding: 5px 10px;
     border-radius: 5px;
 }
+
